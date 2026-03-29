@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Farabi Chat | KazNU Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <h2>Farabi Chat</h2>
+      <p>Вход только для студентов КазНУ</p>
+
+      <div id="loginForm">
+        <div class="profile-form">
+          <input id="loginEmail" type="email" placeholder="Студенческая почта" />
+          <input id="loginPassword" type="password" placeholder="Пароль" />
+          <button id="loginBtn" class="save-btn" type="button">Войти</button>
+        </div>
+
+        <div class="auth-switch">
+          Нет аккаунта? <span id="goToRegister">Регистрация</span>
+        </div>
+      </div>
+
+      <div id="registerForm" style="display:none;">
+        <div class="profile-form">
+          <input id="regNickname" type="text" placeholder="Nickname" />
+          <input id="regEmail" type="email" placeholder="Студенческая почта" />
+          <input id="regPassword" type="password" placeholder="Пароль" />
+          <select id="regFaculty"></select>
+          <select id="regSpecialty"></select>
+          <select id="regCourse">
+            <option value="">Курс</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+          <button id="registerBtn" class="save-btn" type="button">Зарегистрироваться</button>
+        </div>
+
+        <div class="auth-switch">
+          Уже есть аккаунт? <span id="goToLogin">Войти</span>
+        </div>
+      </div>
+
+      <div id="verifyForm" style="display:none;">
+        <p>Мы отправили код на студенческую почту</p>
+
+        <div class="profile-form">
+          <input id="verifyEmail" type="email" placeholder="Студенческая почта" />
+          <input id="verifyCode" type="text" placeholder="6-значный код" />
+          <button id="verifyBtn" class="save-btn" type="button">Подтвердить почту</button>
+        </div>
+
+        <div class="auth-switch">
+          Уже есть аккаунт? <span id="backToLoginFromVerify">Войти</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="appShell" style="display:none;">
+    <button id="themeToggle" class="theme-toggle" type="button">🌙</button>
+    <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Открыть меню">☰</button>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <div class="app">
+      <aside id="appSidebar" class="sidebar">
+        <div class="sidebar-scroll">
+          <div class="sidebar-topbar">
+            <div class="brand">
+              <img class="brand-logo-image" src="logo.png" alt="Farabi Chat logo" />
+              <div>
+                <div class="brand-title">FARABI CHAT</div>
+                <div class="brand-subtitle">KazNU Student Hub</div>
+              </div>
+            </div>
+            <button id="sidebarClose" class="sidebar-close" type="button" aria-label="Закрыть меню">✕</button>
+          </div>
+
+          <div class="profile-card">
+            <div class="profile-avatar" id="sidebarAvatar">A</div>
+            <div class="profile-name" id="sidebarName">Аноним</div>
+            <div class="profile-email" id="sidebarEmail">student@live.kaznu.kz</div>
+            <div class="profile-meta">
+              <div><span class="online-dot"></span>онлайн</div>
+              <div id="sidebarFaculty">Факультет не выбран</div>
+              <div id="sidebarSpecialty">Специальность не выбрана</div>
+              <div id="sidebarCourse">Курс не выбран</div>
+              <div id="sidebarDerivedName">Имя по почте: не определено</div>
+            </div>
+            <div class="sidebar-actions">
+              <button class="ghost-btn" id="openProfileBtn" type="button">Открыть профиль</button>
+              <button class="ghost-btn danger" id="logoutBtn" type="button">Выйти</button>
+            </div>
+          </div>
+
+          <div class="sidebar-panel sidebar-panel-accent">
+            <div class="sidebar-panel-title">Быстрый доступ</div>
+            <div class="sidebar-panel-text">
+              Добавляйте свои факультетские, специальностные и общежитские чаты в избранное и переключайтесь между ними за один клик.
+            </div>
+            <button class="ghost-btn full-width" id="goToChatBtn" type="button">Открыть каталог чатов</button>
+          </div>
+
+          <div class="menu-title">Главное меню</div>
+          <div class="nav">
+            <button class="nav-btn active" data-section="dashboard" type="button">🏠 Главная</button>
+            <button class="nav-btn" data-section="chat" type="button">💬 Чаты</button>
+            <button class="nav-btn" data-section="announcements" type="button">📢 Объявления</button>
+            <button class="nav-btn" data-section="events" type="button">📅 Мероприятия</button>
+            <button class="nav-btn" data-section="faculties" type="button">🎓 Факультеты</button>
+            <button class="nav-btn" data-section="students" type="button">🔎 Студенты</button>
+            <button class="nav-btn" data-section="profile" type="button">👤 Профиль</button>
+            <button class="nav-btn admin-only" data-section="admin" type="button">🛠️ Админ</button>
+          </div>
+
+          <div class="sidebar-footer">
+            Farabi Chat — единая платформа КазНУ для чатов, событий, объявлений и студенческих сообществ.
+          </div>
+        </div>
+      </aside>
+
+      <main class="content">
+        <div class="topbar">
+          <div>
+            <h1 id="pageTitle">Главная</h1>
+            <p id="pageSubtitle">Единая цифровая платформа для студентов КазНУ</p>
+          </div>
+          <div class="top-actions">
+            <div class="chip" id="topbarRole">Студент</div>
+          </div>
+        </div>
+
+        <div class="main-panel">
+          <section class="section active" id="section-dashboard">
+            <div class="section-scroll">
+              <div class="hero-panel">
+                <div class="hero-copy">
+                  <div class="eyebrow">KazNU community dashboard</div>
+                  <div class="section-title">Добро пожаловать в Farabi Chat</div>
+                  <div class="section-subtitle">
+                    Центр общения по факультетам, специальностям и домам студентов с быстрым доступом к вашим чатам и важным обновлениям.
+                  </div>
+                  <div class="hero-actions">
+                    <button id="heroOpenChatsBtn" class="save-btn" type="button">Перейти в чаты</button>
+                    <button id="heroOpenProfileBtn" class="ghost-light-btn" type="button">Настроить профиль</button>
+                  </div>
+                </div>
+                <div class="hero-side">
+                  <div class="hero-kpi">
+                    <span>Персональный стек</span>
+                    <strong id="heroPrimaryContext">Факультет и специальность будут здесь</strong>
+                  </div>
+                  <div class="hero-kpi">
+                    <span>Избранные комнаты</span>
+                    <strong id="favoriteCount">0</strong>
+                  </div>
+                </div>
+              </div>
+
+              <div class="cards-grid">
+                <div class="stat-card">
+                  <div class="label">Активные студенты</div>
+                  <div class="value">0</div>
+                </div>
+                <div class="stat-card">
+                  <div class="label">Сейчас онлайн</div>
+                  <div class="value">0</div>
+                </div>
+                <div class="stat-card">
+                  <div class="label">Ближайшие события</div>
+                  <div class="value" id="eventsCount">0</div>
+                </div>
+              </div>
+
+              <div class="dashboard-grid dashboard-grid-wide">
+                <div class="dashboard-col">
+                  <div class="section-card spotlight-card">
+                    <div class="section-card-heading">
+                      <h3>Ваши рекомендуемые чаты</h3>
+                      <button id="dashboardBrowseChatsBtn" class="ghost-inline-btn" type="button">Открыть каталог</button>
+                    </div>
+                    <div class="recommendation-list" id="dashboardRecommendedChats"></div>
+                  </div>
+
+                  <div class="section-card">
+                    <div class="section-card-heading">
+                      <h3>Быстрый обзор платформы</h3>
+                    </div>
+                    <div class="insight-grid">
+                      <div class="insight-card">
+                        <div class="insight-label">Каталог чатов</div>
+                        <div class="insight-value" id="totalChatsCount">0</div>
+                        <div class="muted">Все факультеты, специальности и 18 домов студентов</div>
+                      </div>
+                      <div class="insight-card">
+                        <div class="insight-label">Избранное</div>
+                        <div class="insight-value" id="dashboardFavoriteCount">0</div>
+                        <div class="muted">Ваши личные комнаты для быстрого доступа</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="dashboard-col">
+                  <div class="section-card">
+                    <div class="section-card-heading">
+                      <h3>Избранные чаты</h3>
+                    </div>
+                    <div class="favorite-preview-list" id="dashboardFavoriteChats"></div>
+                  </div>
+
+                  <div class="section-card">
+                    <div class="section-card-heading">
+                      <h3>Навигация по кампусу</h3>
+                    </div>
+                    <div class="campus-grid">
+                      <div class="campus-tile">
+                        <strong>Факультеты</strong>
+                        <span>Отдельные чаты по каждому факультету и его направлениям.</span>
+                      </div>
+                      <div class="campus-tile">
+                        <strong>Специальности</strong>
+                        <span>Точечные комнаты для своего профиля обучения.</span>
+                      </div>
+                      <div class="campus-tile">
+                        <strong>Дома студентов</strong>
+                        <span>18 чатов по номерам: Дом студентов 1-18.</span>
+                      </div>
+                      <div class="campus-tile">
+                        <strong>Поиск и фильтр</strong>
+                        <span>Ищите нужный чат за секунды и сохраняйте в избранное.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" id="section-chat">
+            <div class="chat-layout">
+              <div class="chat-rooms">
+                <div class="chat-room-header">
+                  <div>
+                    <div class="chat-room-title">Каталог чатов</div>
+                    <div class="chat-room-caption">Факультеты, специальности, общежития и общие комнаты</div>
+                  </div>
+                </div>
+
+                <div class="chat-search-box">
+                  <input id="chatSearchInput" type="search" placeholder="Поиск по чатам" />
+                </div>
+
+                <div class="chat-filter-tabs">
+                  <button id="favoritesTabBtn" class="filter-tab active" data-chat-filter="favorites" type="button">Избранные</button>
+                  <button id="allChatsTabBtn" class="filter-tab" data-chat-filter="all" type="button">Все чаты</button>
+                </div>
+
+                <div class="chat-suggestions" id="recommendedChatChips"></div>
+
+                <div class="room-list" id="roomList"></div>
+
+                <div id="emptyChatState" class="empty-chat-state" style="display:none;">
+                  Чаты не найдены. Попробуйте изменить поиск или откройте вкладку «Все чаты».
+                </div>
+              </div>
+
+              <div class="chat-panel">
+                <div class="chat-header">
+                  <div>
+                    <h2 id="chatRoomTitle">Общий чат</h2>
+                    <p id="chatRoomSubtitle">Обсуждение для всех студентов КазНУ</p>
+                    <div class="chat-room-meta" id="chatRoomMeta"></div>
+                  </div>
+
+                  <div class="chat-controls">
+                    <button id="favoriteRoomBtn" class="favorite-room-btn" type="button">☆ В избранное</button>
+                    <input id="username" placeholder="Ваше имя" readonly />
+                    <select id="room" style="display:none;">
+                      <option value="global">Общий чат</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div id="messages" class="messages"></div>
+
+                <div class="input-area">
+                  <input id="messageInput" placeholder="Введите сообщение..." />
+                  <button id="sendBtn" type="button">Отправить</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" id="section-announcements">
+            <div class="section-scroll">
+              <div class="section-title">Объявления</div>
+              <div class="section-subtitle">
+                Важные новости, анонсы и информационные сообщения.
+              </div>
+              <div class="plain-list" id="announcementsList"></div>
+            </div>
+          </section>
+
+          <section class="section" id="section-events">
+            <div class="section-scroll">
+              <div class="section-title">Мероприятия</div>
+              <div class="section-subtitle">
+                Ближайшие события, встречи и активности в КазНУ.
+              </div>
+              <div class="plain-list" id="eventsList"></div>
+            </div>
+          </section>
+
+          <section class="section" id="section-faculties">
+            <div class="section-scroll">
+              <div class="section-title">Факультеты</div>
+              <div class="section-subtitle">
+                Основные страницы факультетов и их сообщества внутри платформы.
+              </div>
+              <div class="two-col" id="facultiesList"></div>
+            </div>
+          </section>
+
+          <section class="section" id="section-students">
+            <div class="section-scroll">
+              <div class="section-title">Студенты</div>
+              <div class="section-subtitle">
+                Каталог студентов и база для будущего поиска и нетворкинга.
+              </div>
+              <div class="two-col" id="studentsList"></div>
+            </div>
+          </section>
+
+          <section class="section" id="section-profile">
+            <div class="section-scroll">
+              <div class="section-title">Профиль</div>
+              <div class="section-subtitle">
+                Управление профилем и отображаемым именем.
+              </div>
+
+              <div class="profile-layout single-column">
+                <div class="section-card profile-main-card">
+                  <h3>Мои данные</h3>
+                  <div class="profile-form">
+                    <input id="editDisplayName" placeholder="Nickname" />
+                    <input id="editEmail" placeholder="Почта" disabled />
+                    <input id="editFaculty" placeholder="Факультет" disabled />
+                    <input id="editSpecialty" placeholder="Специальность" disabled />
+                    <input id="editCourse" placeholder="Курс" disabled />
+                    <input id="editRealName" placeholder="Настоящее имя" disabled />
+                    <textarea id="editBio" rows="5" placeholder="Описание / о себе"></textarea>
+                    <button class="save-btn" id="saveProfileEditBtn" type="button">Сохранить изменения</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section admin-only" id="section-admin">
+            <div class="section-scroll">
+              <div class="section-title">Админ-панель</div>
+              <div class="section-subtitle">
+                Управление правами, мероприятиями и объявлениями.
+              </div>
+
+              <div class="admin-grid">
+                <div class="section-card">
+                  <h3>Назначить админа</h3>
+                  <div class="profile-form">
+                    <input id="newAdminEmail" type="email" placeholder="Почта пользователя" />
+                    <button id="makeAdminBtn" class="save-btn" type="button">Сделать админом</button>
+                  </div>
+                </div>
+
+                <div class="section-card">
+                  <h3>Добавить мероприятие</h3>
+                  <div class="profile-form">
+                    <input id="eventTitle" placeholder="Название" />
+                    <input id="eventDescription" placeholder="Описание" />
+                    <input id="eventDate" placeholder="Дата и время" />
+                    <input id="eventPlace" placeholder="Место" />
+                    <input id="eventFaculty" placeholder="Факультет" />
+                    <input id="eventTags" placeholder="Теги через запятую" />
+                    <button class="save-btn" id="addEventBtn" type="button">Добавить событие</button>
+                  </div>
+                </div>
+
+                <div class="section-card">
+                  <h3>Добавить объявление</h3>
+                  <div class="profile-form">
+                    <input id="announcementTitle" placeholder="Заголовок" />
+                    <textarea id="announcementText" rows="4" placeholder="Текст"></textarea>
+                    <input id="announcementMeta" placeholder="Например: ФМО • Сегодня" />
+                    <button class="save-btn" id="addAnnouncementBtn" type="button">Добавить объявление</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="faculties.js"></script>
+    <script src="app.js"></script>
+  </div>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "name": "kaznu-chat",
+  "version": "1.0.0",
+  "description": "Farabi Chat platform for KazNU students with real-time chat, announcements and events",
+  "main": "server.mjs",
+  "type": "module",
+  "scripts": {
+    "check": "node --check server.mjs && node --check validators.mjs && node --check config.mjs && node --check public/app.js",
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs"
+  },
+  "keywords": [
+    "kaznu",
+    "chat",
+    "student-hub",
+    "socket.io",
+    "express"
+  ],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.0.3",
+    "express": "^5.2.1",
+    "mongoose": "^9.3.1",
+    "nodemailer": "^8.0.3",
+    "socket.io": "^4.8.3"
+  }
+}
