@@ -7,7 +7,8 @@
   "scripts": {
     "check": "node --check server.mjs && node --check validators.mjs && node --check config.mjs && node --check public/app.js",
     "start": "node server.mjs",
-    "dev": "node --watch server.mjs"
+    "dev": "node --watch server.mjs",
+    "test:e2e": "playwright test"
   },
   "keywords": [
     "kaznu",
@@ -28,5 +29,8 @@
     "mongoose": "^9.3.1",
     "nodemailer": "^8.0.3",
     "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
   }
 }

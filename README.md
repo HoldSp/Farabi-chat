@@ -116,7 +116,7 @@ npm install
 3. Create `.env` from `.env.example` and fill in real values:
 
 ```env
-PORT=3000
+PORT=3001
 MONGO_URI=mongodb://localhost:27017/kaznu-chat
 MAIL_USER=your_email@gmail.com
 MAIL_PASS=your_app_password
@@ -133,7 +133,7 @@ npm start
 5. Open the browser:
 
 ```text
-http://localhost:3000
+http://localhost:3001
 ```
 
 ## Demo Mode
@@ -160,7 +160,7 @@ npm run check
 
 ## Environment Variables
 
-- `PORT`: server port
+- `PORT`: server port, by default `3001`
 - `MONGO_URI`: MongoDB connection string
 - `MAIL_USER`: sender email for verification codes
 - `MAIL_PASS`: app password for the email account

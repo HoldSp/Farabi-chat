@@ -10,19 +10,19 @@ let presenceIntervalId = null;
 const pageMeta = {
   dashboard: {
     title: "Главная",
-    subtitle: "Персональный dashboard для студентов КазНУ"
+    subtitle: ""
   },
   chat: {
     title: "Чаты",
-    subtitle: "Каталог факультетов, специальностей, домов студентов и избранных комнат"
+    subtitle: "Личные, факультетские и общие комнаты"
   },
   announcements: {
     title: "Объявления",
-    subtitle: "Важные новости и информационные сообщения"
+    subtitle: "Короткая лента важных обновлений"
   },
   events: {
     title: "Мероприятия",
-    subtitle: "События, встречи, лекции и жизнь кампуса"
+    subtitle: "Ближайшие встречи и активности кампуса"
   },
   faculties: {
     title: "Факультеты",
@@ -34,33 +34,33 @@ const pageMeta = {
   },
   profile: {
     title: "Профиль",
-    subtitle: "Личные данные, nickname и персональные настройки"
+    subtitle: "Основные данные и настройки аккаунта"
   },
   admin: {
     title: "Админ-панель",
-    subtitle: "Права доступа, мероприятия, объявления и модерация"
+    subtitle: "Управление событиями, объявлениями и доступом"
   }
 };
 
 const fallbackFacultiesData = [
   {
     title: "ФМО",
-    text: "Международные отношения, дипломатия, международное право и аналитика.",
+    text: "Международные отношения и аналитика.",
     tags: ["ФМО", "Сообщество", "Чаты"]
   },
   {
     title: "Юрфак",
-    text: "Право, moot court, исследования и учебные проекты.",
+    text: "Право, исследования и учебные проекты.",
     tags: ["Право", "Студенты", "Исследования"]
   },
   {
     title: "IT / CS",
-    text: "Код, AI, стартапы, хакатоны и командные проекты.",
+    text: "Код, AI и командные проекты.",
     tags: ["Код", "AI", "Разработка"]
   },
   {
     title: "Экономика",
-    text: "Финансы, аналитика, кейсы и карьерные события.",
+    text: "Финансы, аналитика и карьерные события.",
     tags: ["Экономика", "Карьера", "Финансы"]
   }
 ];
@@ -91,10 +91,15 @@ const appState = {
   chatSearch: ""
 };
 
+const uiState = {
+  storageMode: "unknown"
+};
+
 const navButtons = Array.from(document.querySelectorAll(".nav-btn"));
 const sections = Array.from(document.querySelectorAll(".section"));
 
 const authScreen = $("authScreen");
+const toastRegion = $("toastRegion");
 const appShell = $("appShell");
 const appSidebar = $("appSidebar");
 const sidebarOverlay = $("sidebarOverlay");
@@ -104,6 +109,13 @@ const themeToggle = $("themeToggle");
 const pageTitle = $("pageTitle");
 const pageSubtitle = $("pageSubtitle");
 const topbarRole = $("topbarRole");
+const platformStatusChip = $("platformStatusChip");
+const systemStatusBanner = $("systemStatusBanner");
+const authStatusBadge = $("authStatusBadge");
+const authMessage = $("authMessage");
+const demoCredentials = $("demoCredentials");
+const fillStudentDemoBtn = $("fillStudentDemoBtn");
+const fillAdminDemoBtn = $("fillAdminDemoBtn");
 
 const usernameInput = $("username");
 const messageInput = $("messageInput");
@@ -128,7 +140,6 @@ const sidebarFaculty = $("sidebarFaculty");
 const sidebarSpecialty = $("sidebarSpecialty");
 const sidebarCourse = $("sidebarCourse");
 const sidebarDerivedName = $("sidebarDerivedName");
-const openProfileBtn = $("openProfileBtn");
 const logoutBtn = $("logoutBtn");
 const goToChatBtn = $("goToChatBtn");
 const heroOpenChatsBtn = $("heroOpenChatsBtn");
@@ -139,6 +150,9 @@ const heroPrimaryContext = $("heroPrimaryContext");
 const favoriteCount = $("favoriteCount");
 const dashboardFavoriteCount = $("dashboardFavoriteCount");
 const totalChatsCount = $("totalChatsCount");
+const totalUsersCount = $("totalUsersCount");
+const onlineUsersCount = $("onlineUsersCount");
+const storageModeLabel = $("storageModeLabel");
 const dashboardRecommendedChats = $("dashboardRecommendedChats");
 const dashboardFavoriteChats = $("dashboardFavoriteChats");
 
@@ -231,6 +245,110 @@ function setTooltip(element, text) {
   if (element) {
     element.title = text || "";
   }
+}
+
+function normalizeSectionName(sectionName) {
+  return pageMeta[sectionName] ? sectionName : "dashboard";
+}
+
+function getSectionFromHash() {
+  return normalizeSectionName(window.location.hash.replace(/^#/, ""));
+}
+
+function showToast(message, type = "info") {
+  if (!toastRegion || !message) return;
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  toastRegion.appendChild(toast);
+
+  window.setTimeout(() => {
+    toast.classList.add("toast-exit");
+    window.setTimeout(() => toast.remove(), 220);
+  }, 3200);
+}
+
+function setInlineMessage(element, message, type = "info") {
+  if (!element) return;
+
+  if (!message) {
+    element.hidden = true;
+    element.textContent = "";
+    element.dataset.type = "";
+    return;
+  }
+
+  element.hidden = false;
+  element.dataset.type = type;
+  element.textContent = message;
+}
+
+function setButtonLoading(button, isLoading, loadingLabel) {
+  if (!button) return;
+
+  if (isLoading) {
+    if (!button.dataset.defaultLabel) {
+      button.dataset.defaultLabel = button.textContent;
+    }
+    button.disabled = true;
+    button.textContent = loadingLabel;
+    return;
+  }
+
+  button.disabled = false;
+  if (button.dataset.defaultLabel) {
+    button.textContent = button.dataset.defaultLabel;
+  }
+}
+
+function updateModeUI(storageMode) {
+  uiState.storageMode = storageMode || "unknown";
+  const isDemoMode = uiState.storageMode === "demo";
+
+  if (platformStatusChip) {
+    platformStatusChip.textContent = isDemoMode ? "Локальный режим" : uiState.storageMode === "database" ? "Сервис активен" : "Статус неизвестен";
+    platformStatusChip.classList.toggle("chip-warning", isDemoMode);
+  }
+
+  if (storageModeLabel) {
+    storageModeLabel.textContent = isDemoMode ? "Локально" : uiState.storageMode === "database" ? "Онлайн" : "...";
+  }
+
+  if (authStatusBadge) {
+    authStatusBadge.hidden = false;
+    authStatusBadge.textContent = isDemoMode ? "Локальный режим: данные сохраняются временно" : uiState.storageMode === "database" ? "Все сервисы готовы" : "Режим работы определяется";
+    authStatusBadge.classList.toggle("mode-chip-warning", isDemoMode);
+  }
+
+  if (demoCredentials) {
+    demoCredentials.hidden = !isDemoMode;
+  }
+
+  if (systemStatusBanner) {
+    if (isDemoMode) {
+      setInlineMessage(systemStatusBanner, "Сейчас включен локальный режим, поэтому данные сохраняются только для текущего запуска.", "warning");
+    } else {
+      setInlineMessage(systemStatusBanner, "", "info");
+    }
+  }
+}
+
+function fillDemoCredentials(role) {
+  const loginEmail = $("loginEmail");
+  const loginPassword = $("loginPassword");
+
+  if (role === "student") {
+    if (loginEmail) loginEmail.value = "serik_alikhan@live.kaznu.kz";
+    if (loginPassword) loginPassword.value = "student123";
+  }
+
+  if (role === "admin") {
+    if (loginEmail) loginEmail.value = "turlybek_baiken@live.kaznu.kz";
+    if (loginPassword) loginPassword.value = "admin123";
+  }
+
+  setInlineMessage(authMessage, `Демо-данные для роли «${role === "admin" ? "админ" : "студент"}» заполнены.`, "info");
 }
 
 function getFavoritesStorageKey() {
@@ -442,21 +560,19 @@ function renderRoomList() {
     .map((chat) => {
       const favoriteClass = favoriteIds.has(chat.id) ? " is-favorite" : "";
       const activeClass = chat.id === appState.activeRoomId ? " active" : "";
-      const tags = (chat.tags || []).map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("");
 
       return `
-        <button class="room-card${activeClass}" type="button" data-open-room="${escapeHtml(chat.id)}">
+        <article class="room-card${activeClass}">
           <div class="room-card-head">
-            <div>
+            <div class="room-card-body" role="button" tabindex="0" data-open-room="${escapeHtml(chat.id)}">
               <strong>${escapeHtml(chat.title)}</strong>
               <div class="room-card-subtitle">${escapeHtml(chat.subtitle)}</div>
             </div>
-            <button class="favorite-toggle-btn${favoriteClass}" type="button" data-favorite-room="${escapeHtml(chat.id)}">
+            <button class="favorite-toggle-btn${favoriteClass}" type="button" data-favorite-room="${escapeHtml(chat.id)}" aria-label="Добавить в избранное">
               ${favoriteIds.has(chat.id) ? "★" : "☆"}
             </button>
           </div>
-          <div class="room-card-tags">${tags}</div>
-        </button>
+        </article>
       `;
     })
     .join("");
@@ -484,7 +600,7 @@ function renderDashboardRecommended() {
     `)
     .join("");
 
-  dashboardRecommendedChats.innerHTML = cards || '<div class="empty-dashboard-state">Рекомендации появятся после загрузки каталога чатов.</div>';
+  dashboardRecommendedChats.innerHTML = cards || '<div class="empty-dashboard-state">Рекомендации появятся после загрузки чатов.</div>';
 }
 
 function renderDashboardFavorites() {
@@ -495,7 +611,7 @@ function renderDashboardFavorites() {
     .filter(Boolean);
 
   if (!favorites.length) {
-    dashboardFavoriteChats.innerHTML = '<div class="empty-dashboard-state">Добавьте нужные комнаты в избранное. Например: ваш факультет, специальность и дом студентов.</div>';
+    dashboardFavoriteChats.innerHTML = '<div class="empty-dashboard-state">Добавьте несколько комнат в избранное для быстрого доступа.</div>';
     return;
   }
 
@@ -531,7 +647,7 @@ function updateHeroContext() {
     .filter(Boolean)
     .join(" • ");
 
-  heroPrimaryContext.textContent = parts || "Выберите факультет и специальность в профиле";
+  heroPrimaryContext.textContent = parts || "Заполните профиль, чтобы видеть релевантные комнаты";
 }
 
 function updateFilterButtons() {
@@ -604,22 +720,30 @@ function setActiveRoom(roomId, emitJoin = true) {
   }
 }
 
-function switchSection(sectionName) {
+function switchSection(sectionName, options = {}) {
+  const nextSection = normalizeSectionName(sectionName);
+  const { updateHash = true } = options;
+
   navButtons.forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.section === sectionName);
+    btn.classList.toggle("active", btn.dataset.section === nextSection);
   });
 
   sections.forEach((section) => {
-    section.classList.toggle("active", section.id === `section-${sectionName}`);
+    section.classList.toggle("active", section.id === `section-${nextSection}`);
   });
 
-  if (pageMeta[sectionName]) {
-    pageTitle.textContent = pageMeta[sectionName].title;
-    pageSubtitle.textContent = pageMeta[sectionName].subtitle;
+  if (pageMeta[nextSection]) {
+    pageTitle.textContent = pageMeta[nextSection].title;
+    pageSubtitle.textContent = pageMeta[nextSection].subtitle;
+    pageSubtitle.style.display = pageMeta[nextSection].subtitle ? "block" : "none";
   }
 
-  if (sectionName === "chat") {
+  if (nextSection === "chat") {
     renderAllDynamicPanels();
+  }
+
+  if (updateHash && window.location.hash !== `#${nextSection}`) {
+    window.location.hash = nextSection;
   }
 
   closeSidebar();
@@ -696,6 +820,11 @@ function renderEvents(items) {
   eventsList.innerHTML = "";
   if (eventsCount) eventsCount.textContent = String(items.length);
 
+  if (!items.length) {
+    eventsList.innerHTML = '<div class="empty-dashboard-state">Пока нет опубликованных мероприятий. Когда появятся новые события кампуса, они будут видны здесь.</div>';
+    return;
+  }
+
   items.forEach((item) => {
     const div = document.createElement("div");
     div.className = "post-card";
@@ -714,6 +843,11 @@ function renderAnnouncements(items) {
   if (!announcementsList) return;
 
   announcementsList.innerHTML = "";
+  if (!items.length) {
+    announcementsList.innerHTML = '<div class="empty-dashboard-state">Пока нет активных объявлений. Здесь будут собираться важные университетские обновления.</div>';
+    return;
+  }
+
   items.forEach((item) => {
     const div = document.createElement("div");
     div.className = "post-card";
@@ -773,8 +907,9 @@ function addMessage(message) {
     messageEl.classList.add("own");
   }
 
-  const deleteButton = currentUser && currentUser.role === "admin" && message._id
-    ? `<button class="delete-message-btn" data-id="${escapeHtml(message._id)}" type="button">Удалить</button>`
+  const messageId = message._id || message.id;
+  const deleteButton = currentUser && currentUser.role === "admin" && messageId
+    ? `<button class="delete-message-btn" data-id="${escapeHtml(messageId)}" type="button">Удалить</button>`
     : "";
 
   messageEl.innerHTML = `
@@ -814,14 +949,17 @@ async function loadAnnouncements() {
 async function loadStats() {
   try {
     const res = await fetch("/api/stats");
+    if (!res.ok) {
+      throw new Error("Не удалось загрузить статистику");
+    }
     const data = await res.json();
-    const statCards = document.querySelectorAll(".stat-card .value");
 
-    if (statCards[0]) statCards[0].textContent = data.totalUsers ?? 0;
-    if (statCards[1]) statCards[1].textContent = data.onlineUsers ?? 0;
-    if (statCards[2]) statCards[2].textContent = data.totalEvents ?? 0;
+    if (totalUsersCount) totalUsersCount.textContent = String(data.totalUsers ?? 0);
+    if (onlineUsersCount) onlineUsersCount.textContent = String(data.onlineUsers ?? 0);
+    updateModeUI(data.storageMode || "database");
   } catch (err) {
     console.error("Ошибка загрузки статистики:", err);
+    updateModeUI("unknown");
   }
 }
 
@@ -958,6 +1096,7 @@ async function applyAccess() {
   applyUserProfileToUI(user);
   rebuildChatCatalog();
   setActiveRoom(findChatById(getLastRoomId()) ? getLastRoomId() : "global");
+  switchSection(getSectionFromHash(), { updateHash: false });
   startPresenceHeartbeat();
 }
 
@@ -966,7 +1105,7 @@ function sendMessage() {
   const text = messageInput?.value.trim();
 
   if (!currentUser) {
-    alert("Сначала войди в аккаунт");
+    showToast("Сначала войди в аккаунт", "warning");
     return;
   }
 
@@ -986,10 +1125,11 @@ function sendMessage() {
 async function handleProfileSave() {
   const currentUser = getCurrentUser();
   if (!currentUser) {
-    alert("Сначала войди в аккаунт");
+    showToast("Сначала войди в аккаунт", "warning");
     return;
   }
 
+  setButtonLoading(saveProfileEditBtn, true, "Сохраняем...");
   try {
     const res = await fetch("/api/profile", {
       method: "PUT",
@@ -1003,24 +1143,26 @@ async function handleProfileSave() {
 
     const data = await res.json();
     if (!res.ok) {
-      alert(data.error || "Не удалось обновить профиль");
+      showToast(data.error || "Не удалось обновить профиль", "error");
       return;
     }
 
     saveCurrentUser(data.user);
     applyUserProfileToUI(data.user);
     rebuildChatCatalog();
-    alert("Профиль обновлён");
+    showToast("Профиль обновлён", "success");
   } catch (err) {
     console.error("Ошибка обновления профиля:", err);
-    alert("Ошибка сервера");
+    showToast("Ошибка сервера", "error");
+  } finally {
+    setButtonLoading(saveProfileEditBtn, false, "Сохраняем...");
   }
 }
 
 async function handleAddEvent() {
   const currentUser = getCurrentUser();
   if (!currentUser || currentUser.role !== "admin") {
-    alert("Нет доступа");
+    showToast("Нет доступа", "error");
     return;
   }
 
@@ -1035,10 +1177,11 @@ async function handleAddEvent() {
   };
 
   if (!payload.title || !payload.description || !payload.date || !payload.place) {
-    alert("Заполни название, описание, дату и место");
+    showToast("Заполни название, описание, дату и место", "warning");
     return;
   }
 
+  setButtonLoading(addEventBtn, true, "Добавляем...");
   try {
     const res = await fetch("/api/events", {
       method: "POST",
@@ -1048,7 +1191,7 @@ async function handleAddEvent() {
 
     const data = await res.json();
     if (!res.ok) {
-      alert(data.error || "Не удалось добавить мероприятие");
+      showToast(data.error || "Не удалось добавить мероприятие", "error");
       return;
     }
 
@@ -1061,17 +1204,19 @@ async function handleAddEvent() {
 
     await loadEvents();
     await loadStats();
-    alert("Мероприятие добавлено");
+    showToast("Мероприятие добавлено", "success");
   } catch (err) {
     console.error("Ошибка добавления мероприятия:", err);
-    alert("Ошибка сервера");
+    showToast("Ошибка сервера", "error");
+  } finally {
+    setButtonLoading(addEventBtn, false, "Добавляем...");
   }
 }
 
 async function handleAddAnnouncement() {
   const currentUser = getCurrentUser();
   if (!currentUser || currentUser.role !== "admin") {
-    alert("Нет доступа");
+    showToast("Нет доступа", "error");
     return;
   }
 
@@ -1083,10 +1228,11 @@ async function handleAddAnnouncement() {
   };
 
   if (!payload.title || !payload.text || !payload.meta) {
-    alert("Заполни заголовок, текст и meta");
+    showToast("Заполни заголовок, текст и meta", "warning");
     return;
   }
 
+  setButtonLoading(addAnnouncementBtn, true, "Добавляем...");
   try {
     const res = await fetch("/api/announcements", {
       method: "POST",
@@ -1096,7 +1242,7 @@ async function handleAddAnnouncement() {
 
     const data = await res.json();
     if (!res.ok) {
-      alert(data.error || "Не удалось добавить объявление");
+      showToast(data.error || "Не удалось добавить объявление", "error");
       return;
     }
 
@@ -1105,10 +1251,12 @@ async function handleAddAnnouncement() {
     announcementMeta.value = "";
 
     await loadAnnouncements();
-    alert("Объявление добавлено");
+    showToast("Объявление добавлено", "success");
   } catch (err) {
     console.error("Ошибка добавления объявления:", err);
-    alert("Ошибка сервера");
+    showToast("Ошибка сервера", "error");
+  } finally {
+    setButtonLoading(addAnnouncementBtn, false, "Добавляем...");
   }
 }
 
@@ -1117,15 +1265,16 @@ async function handleMakeAdmin() {
   const targetEmail = newAdminEmail.value.trim().toLowerCase();
 
   if (!currentUser || currentUser.role !== "admin") {
-    alert("Нет доступа");
+    showToast("Нет доступа", "error");
     return;
   }
 
   if (!targetEmail) {
-    alert("Введи почту пользователя");
+    showToast("Введи почту пользователя", "warning");
     return;
   }
 
+  setButtonLoading(makeAdminBtn, true, "Назначаем...");
   try {
     const res = await fetch("/api/admin/make-admin", {
       method: "POST",
@@ -1138,15 +1287,17 @@ async function handleMakeAdmin() {
 
     const data = await res.json();
     if (!res.ok) {
-      alert(data.error || "Ошибка назначения админа");
+      showToast(data.error || "Ошибка назначения админа", "error");
       return;
     }
 
     newAdminEmail.value = "";
-    alert("Пользователь стал админом");
+    showToast("Пользователь стал админом", "success");
   } catch (err) {
     console.error("Ошибка назначения админа:", err);
-    alert("Ошибка сервера");
+    showToast("Ошибка сервера", "error");
+  } finally {
+    setButtonLoading(makeAdminBtn, false, "Назначаем...");
   }
 }
 
@@ -1185,6 +1336,16 @@ function bindStaticUI() {
 
       const roomBtn = event.target.closest("[data-open-room]");
       if (roomBtn) {
+        setActiveRoom(roomBtn.dataset.openRoom);
+      }
+    });
+
+    roomList.addEventListener("keydown", (event) => {
+      const roomBtn = event.target.closest("[data-open-room]");
+      if (!roomBtn) return;
+
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
         setActiveRoom(roomBtn.dataset.openRoom);
       }
     });
@@ -1249,14 +1410,16 @@ function bindStaticUI() {
   if (addEventBtn) addEventBtn.addEventListener("click", handleAddEvent);
   if (addAnnouncementBtn) addAnnouncementBtn.addEventListener("click", handleAddAnnouncement);
   if (makeAdminBtn) makeAdminBtn.addEventListener("click", handleMakeAdmin);
-  if (openProfileBtn) openProfileBtn.addEventListener("click", () => switchSection("profile"));
   if (goToChatBtn) goToChatBtn.addEventListener("click", () => switchSection("chat"));
   if (heroOpenChatsBtn) heroOpenChatsBtn.addEventListener("click", () => switchSection("chat"));
-  if (dashboardBrowseChatsBtn) dashboardBrowseChatsBtn.addEventListener("click", () => switchSection("chat"));
   if (heroOpenProfileBtn) heroOpenProfileBtn.addEventListener("click", () => switchSection("profile"));
+  if (dashboardBrowseChatsBtn) dashboardBrowseChatsBtn.addEventListener("click", () => switchSection("chat"));
 
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
+      fetch("/api/logout", {
+        method: "POST"
+      }).catch(() => null);
       stopPresenceHeartbeat();
       clearCurrentUser();
       if (authScreen) authScreen.style.display = "flex";
@@ -1276,7 +1439,7 @@ function bindStaticUI() {
 
     const currentUser = getCurrentUser();
     if (!currentUser || currentUser.role !== "admin") {
-      alert("Нет доступа");
+      showToast("Нет доступа", "error");
       return;
     }
 
@@ -1289,15 +1452,20 @@ function bindStaticUI() {
 
       const data = await res.json();
       if (!res.ok) {
-        alert(data.error || "Не удалось удалить сообщение");
+        showToast(data.error || "Не удалось удалить сообщение", "error");
         return;
       }
 
       btn.closest(".message")?.remove();
+      showToast("Сообщение удалено", "success");
     } catch (err) {
       console.error(err);
-      alert("Ошибка сервера");
+      showToast("Ошибка сервера", "error");
     }
+  });
+
+  window.addEventListener("hashchange", () => {
+    switchSection(getSectionFromHash(), { updateHash: false });
   });
 
   document.addEventListener("visibilitychange", async () => {
@@ -1350,18 +1518,25 @@ async function initAuthFlow() {
     loginForm.style.display = "block";
     registerForm.style.display = "none";
     verifyForm.style.display = "none";
+    if (uiState.storageMode === "demo") {
+      setInlineMessage(authMessage, "Можно войти обычным аккаунтом или использовать демо-доступ ниже.", "info");
+    } else {
+      setInlineMessage(authMessage, "", "info");
+    }
   }
 
   function showRegisterForm() {
     loginForm.style.display = "none";
     registerForm.style.display = "block";
     verifyForm.style.display = "none";
+    setInlineMessage(authMessage, "Используйте почту @live.kaznu.kz. Имя и фамилия будут автоматически определены по адресу.", "info");
   }
 
   function showVerifyForm() {
     loginForm.style.display = "none";
     registerForm.style.display = "none";
     verifyForm.style.display = "block";
+    setInlineMessage(authMessage, "Введите шестизначный код подтверждения, чтобы завершить создание аккаунта.", "success");
   }
 
   if (goToRegister) goToRegister.addEventListener("click", showRegisterForm);
@@ -1371,6 +1546,14 @@ async function initAuthFlow() {
     regFaculty.addEventListener("change", () => {
       loadSpecialtyOptionsAuth(regFaculty.value);
     });
+  }
+
+  if (fillStudentDemoBtn) {
+    fillStudentDemoBtn.addEventListener("click", () => fillDemoCredentials("student"));
+  }
+
+  if (fillAdminDemoBtn) {
+    fillAdminDemoBtn.addEventListener("click", () => fillDemoCredentials("admin"));
   }
 
   if (registerBtn) {
@@ -1385,10 +1568,11 @@ async function initAuthFlow() {
       };
 
       if (!payload.nickname || !payload.email || !payload.password || !payload.faculty || !payload.specialty || !payload.course) {
-        alert("Заполни все поля");
+        setInlineMessage(authMessage, "Заполни все поля регистрации.", "error");
         return;
       }
 
+      setButtonLoading(registerBtn, true, "Создаём...");
       try {
         const res = await fetch("/api/register", {
           method: "POST",
@@ -1398,17 +1582,19 @@ async function initAuthFlow() {
 
         const data = await res.json();
         if (!res.ok) {
-          alert(data.error || "Ошибка регистрации");
+          setInlineMessage(authMessage, data.error || "Ошибка регистрации", "error");
           return;
         }
 
         verifyEmail.value = payload.email;
         verifyCode.value = "";
-        alert("Код отправлен на почту. Подтверди аккаунт.");
         showVerifyForm();
+        showToast("Код подтверждения подготовлен. Завершите верификацию.", "success");
       } catch (err) {
         console.error(err);
-        alert("Ошибка сервера");
+        setInlineMessage(authMessage, "Ошибка сервера", "error");
+      } finally {
+        setButtonLoading(registerBtn, false, "Создаём...");
       }
     });
   }
@@ -1419,10 +1605,11 @@ async function initAuthFlow() {
       const code = verifyCode.value.trim();
 
       if (!email || !code) {
-        alert("Введи почту и код");
+        setInlineMessage(authMessage, "Введи почту и код подтверждения.", "error");
         return;
       }
 
+      setButtonLoading(verifyBtn, true, "Проверяем...");
       try {
         const res = await fetch("/api/verify-email", {
           method: "POST",
@@ -1432,18 +1619,20 @@ async function initAuthFlow() {
 
         const data = await res.json();
         if (!res.ok) {
-          alert(data.error || "Ошибка подтверждения");
+          setInlineMessage(authMessage, data.error || "Ошибка подтверждения", "error");
           return;
         }
 
-        alert("Почта подтверждена. Теперь войди в аккаунт.");
         loginEmail.value = email;
         loginPassword.value = "";
         verifyCode.value = "";
         showLoginForm();
+        showToast("Почта подтверждена. Теперь войдите в аккаунт.", "success");
       } catch (err) {
         console.error(err);
-        alert("Ошибка сервера");
+        setInlineMessage(authMessage, "Ошибка сервера", "error");
+      } finally {
+        setButtonLoading(verifyBtn, false, "Проверяем...");
       }
     });
   }
@@ -1454,10 +1643,11 @@ async function initAuthFlow() {
       const password = loginPassword.value.trim();
 
       if (!email || !password) {
-        alert("Введи почту и пароль");
+        setInlineMessage(authMessage, "Введи почту и пароль.", "error");
         return;
       }
 
+      setButtonLoading(loginBtn, true, "Входим...");
       try {
         const res = await fetch("/api/login", {
           method: "POST",
@@ -1467,7 +1657,7 @@ async function initAuthFlow() {
 
         const data = await res.json();
         if (!res.ok) {
-          alert(data.error || "Ошибка входа");
+          setInlineMessage(authMessage, data.error || "Ошибка входа", "error");
           return;
         }
 
@@ -1475,10 +1665,13 @@ async function initAuthFlow() {
         await applyAccess();
         await sendPresencePing();
         await loadStats();
-        switchSection("dashboard");
+        switchSection(getSectionFromHash(), { updateHash: false });
+        showToast(`С возвращением, ${buildDisplayName(data.user)}.`, "success");
       } catch (err) {
         console.error(err);
-        alert("Ошибка сервера");
+        setInlineMessage(authMessage, "Ошибка сервера", "error");
+      } finally {
+        setButtonLoading(loginBtn, false, "Входим...");
       }
     });
   }
@@ -1493,6 +1686,7 @@ async function initApp() {
   bindStaticUI();
   bindRealtime();
   renderStudents();
+  switchSection(getSectionFromHash(), { updateHash: false });
 
   await loadFaculties();
   renderFaculties();

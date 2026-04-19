@@ -172,6 +172,12 @@ textarea {
   gap: 12px;
 }
 
+.sidebar-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .brand {
   display: flex;
   gap: 14px;
@@ -1170,6 +1176,69 @@ body.dark .empty-dashboard-state {
   border-color: rgba(148, 163, 184, 0.2);
 }
 
+body.dark .section-title,
+body.dark .section-heading,
+body.dark .metric-card-value,
+body.dark .info-row strong,
+body.dark .post-card h3,
+body.dark .faculty-card h3,
+body.dark .student-card h3,
+body.dark .room-card-subtitle,
+body.dark .recommendation-card strong,
+body.dark .favorite-preview-card strong,
+body.dark .plain-item strong,
+body.dark .campus-tile strong,
+body.dark .chat-header h2,
+body.dark .chat-header p,
+body.dark .message .text,
+body.dark .message .meta {
+  color: var(--text);
+}
+
+body.dark .plain-item,
+body.dark .info-row,
+body.dark .campus-tile,
+body.dark .chat-room-card,
+body.dark .stat-card,
+body.dark .insight-card {
+  background: linear-gradient(180deg, rgba(15, 29, 49, 0.96), rgba(18, 36, 59, 0.96));
+  border-color: rgba(148, 163, 184, 0.18);
+}
+
+body.dark .hero-panel {
+  background:
+    radial-gradient(circle at top left, rgba(224, 172, 87, 0.18), transparent 30%),
+    radial-gradient(circle at 80% 10%, rgba(108, 182, 255, 0.12), transparent 28%),
+    linear-gradient(135deg, #10233f 0%, #153155 42%, #1c3f6d 100%);
+  color: var(--text);
+}
+
+body.dark .hero-kpi {
+  background: rgba(8, 18, 32, 0.58);
+  border-color: rgba(148, 163, 184, 0.18);
+}
+
+body.dark .hero-kpi span,
+body.dark .hero-kpi strong,
+body.dark .stat-card .label,
+body.dark .insight-label,
+body.dark .stat-card .value,
+body.dark .insight-value,
+body.dark .section-card h3,
+body.dark .section-card-heading,
+body.dark .info-row span,
+body.dark .info-row strong {
+  color: var(--text);
+}
+
+body.dark .stat-card,
+body.dark .insight-card,
+body.dark .section-card,
+body.dark .main-panel,
+body.dark .topbar {
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+}
+
 @media (max-width: 1280px) {
   .app {
     grid-template-columns: 330px minmax(0, 1fr);
@@ -1326,4 +1395,1735 @@ body.dark .empty-dashboard-state {
   .ghost-btn {
     width: 100%;
   }
+}
+[hidden] {
+  display: none !important;
+}
+
+.toast-region {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2200;
+  display: grid;
+  gap: 10px;
+  max-width: min(92vw, 360px);
+}
+
+.toast {
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  background: rgba(15, 29, 49, 0.94);
+  color: white;
+  box-shadow: 0 20px 40px rgba(10, 20, 36, 0.22);
+  animation: toast-enter 0.22s ease;
+}
+
+.toast-success {
+  background: rgba(31, 110, 86, 0.95);
+}
+
+.toast-warning {
+  background: rgba(153, 101, 23, 0.96);
+}
+
+.toast-error {
+  background: rgba(146, 43, 43, 0.96);
+}
+
+.toast-exit {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-shell {
+  width: min(1180px, 100%);
+  display: grid;
+  grid-template-columns: minmax(0, 520px) minmax(280px, 1fr);
+  gap: 20px;
+}
+
+.auth-card {
+  width: 100%;
+}
+
+.auth-card h1 {
+  margin: 0 0 12px;
+  font-family: "Space Grotesk", "Manrope", sans-serif;
+  font-size: 38px;
+  color: var(--navy-3);
+}
+
+.auth-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 7px 12px;
+  margin-bottom: 14px;
+  border-radius: 999px;
+  background: rgba(108, 182, 255, 0.12);
+  color: var(--navy-2);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.auth-lead,
+.auth-side-card p,
+.demo-panel-copy span {
+  line-height: 1.6;
+}
+
+.mode-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(108, 182, 255, 0.08);
+  color: var(--navy-3);
+}
+
+.inline-banner {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(108, 182, 255, 0.12);
+  color: var(--navy-3);
+  line-height: 1.5;
+}
+
+.inline-banner-page {
+  margin-bottom: 18px;
+}
+
+.inline-banner[data-type="success"] {
+  background: rgba(86, 197, 166, 0.14);
+  border-color: rgba(86, 197, 166, 0.22);
+}
+
+.inline-banner[data-type="warning"],
+.chip-warning,
+.mode-chip-warning {
+  background: rgba(224, 172, 87, 0.16);
+  border-color: rgba(224, 172, 87, 0.28);
+}
+
+.inline-banner[data-type="error"] {
+  background: rgba(188, 29, 29, 0.1);
+  border-color: rgba(188, 29, 29, 0.18);
+  color: #bc1d1d;
+}
+
+.auth-form {
+  margin-top: 10px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy-2);
+}
+
+.text-button {
+  padding: 0;
+  background: transparent;
+  color: var(--navy-2);
+  font-weight: 800;
+}
+
+.auth-switch button {
+  display: inline;
+}
+
+.demo-panel {
+  margin-bottom: 18px;
+  padding: 18px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(224, 172, 87, 0.18), rgba(255, 255, 255, 0.78));
+  border: 1px solid rgba(224, 172, 87, 0.28);
+}
+
+.demo-panel-copy {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.demo-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.demo-hint {
+  font-size: 13px;
+  color: var(--navy-2);
+}
+
+.auth-side-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.auth-side-card {
+  padding: 28px;
+  border-radius: var(--radius-xl);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.auth-side-card-accent {
+  color: white;
+  background:
+    radial-gradient(circle at top left, rgba(224, 172, 87, 0.26), transparent 32%),
+    radial-gradient(circle at 86% 10%, rgba(108, 182, 255, 0.22), transparent 28%),
+    linear-gradient(135deg, #13325d 0%, #183b69 42%, #21497f 100%);
+}
+
+.auth-side-card-accent h2,
+.auth-side-card-accent p,
+.auth-side-card-accent .eyebrow {
+  color: white;
+}
+
+.auth-side-card-accent .eyebrow {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.auth-side-stat {
+  display: grid;
+  gap: 4px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.auth-side-stat:last-child {
+  border-bottom: none;
+}
+
+.platform-status-chip,
+.chip-muted {
+  background: rgba(22, 52, 95, 0.06);
+  border-color: rgba(22, 52, 95, 0.08);
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-card-heading-loose {
+  margin-bottom: 18px;
+}
+
+.insight-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.insight-value-small {
+  font-size: 24px;
+}
+
+.room-card-body {
+  min-width: 0;
+}
+
+.room-card-body[role="button"] {
+  cursor: pointer;
+}
+
+body.dark .mode-chip,
+body.dark .inline-banner,
+body.dark .chip-muted,
+body.dark .demo-panel {
+  background: rgba(103, 186, 255, 0.12);
+  color: var(--text);
+  border-color: rgba(103, 186, 255, 0.14);
+}
+
+@media (max-width: 1280px) {
+  .auth-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .top-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 640px) {
+  .auth-shell {
+    gap: 16px;
+  }
+
+  .auth-card h1 {
+    font-size: 24px;
+  }
+
+  .demo-actions,
+  .top-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toast-region {
+    left: 16px;
+    right: 16px;
+    max-width: none;
+  }
+}
+
+.brand-logo-image {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  border-color: var(--line);
+  background: var(--panel-soft);
+  box-shadow: none;
+}
+
+.brand-title,
+.brand-subtitle,
+.menu-title,
+.profile-email,
+.profile-meta,
+.sidebar-panel-text,
+.sidebar-footer,
+.nav-btn,
+.ghost-btn {
+  color: var(--text);
+}
+
+.brand-title {
+  font-size: 18px;
+  color: var(--navy-3);
+}
+
+.brand-subtitle,
+.profile-email,
+.menu-title,
+.profile-meta,
+.sidebar-panel-text,
+.sidebar-footer {
+  color: var(--muted);
+}
+
+.profile-card,
+.sidebar-panel {
+  padding: 16px;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+
+.sidebar-panel,
+.sidebar-footer,
+.eyebrow {
+  display: none;
+}
+
+.profile-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  font-size: 18px;
+}
+
+.profile-name {
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+
+.sidebar-actions {
+  grid-template-columns: 1fr;
+}
+
+.nav {
+  gap: 6px;
+}
+
+.nav-btn {
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.nav-btn:hover {
+  background: rgba(34, 50, 69, 0.05);
+}
+
+.nav-btn.active {
+  background: rgba(34, 50, 69, 0.08);
+  color: var(--navy-3);
+  border: 1px solid var(--line);
+}
+
+.ghost-btn {
+  padding: 11px 12px;
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+}
+
+.ghost-btn.danger {
+  color: #9f3d3d;
+}
+
+.theme-toggle,
+.sidebar-toggle,
+.sidebar-close {
+  box-shadow: var(--shadow);
+}
+
+.theme-toggle {
+  background: rgba(252, 251, 248, 0.9);
+  border: 1px solid var(--line);
+  color: var(--navy-3);
+}
+
+.topbar,
+.main-panel,
+.section-card,
+.room-card,
+.chat-header,
+.input-area,
+.post-card,
+.faculty-card,
+.student-card,
+.stat-card,
+.insight-card,
+.campus-tile,
+.plain-item,
+.recommendation-card,
+.favorite-preview-card,
+.auth-card {
+  background: rgba(252, 251, 248, 0.88);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.topbar {
+  padding: 18px 84px 18px 20px;
+}
+
+.topbar h1 {
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+}
+
+.chip {
+  background: var(--panel-soft);
+  border-color: var(--line);
+  color: var(--navy-3);
+}
+
+.main-panel {
+  border-radius: 24px;
+}
+
+.section-scroll {
+  padding: 20px;
+}
+
+.hero-panel {
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 14px;
+  padding: 20px;
+  margin-bottom: 14px;
+  border-radius: 22px;
+  background: rgba(252, 251, 248, 0.92);
+  color: var(--text);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.hero-panel::after {
+  display: none;
+}
+
+.hero-panel .section-title,
+.hero-panel .section-subtitle {
+  color: var(--navy-3);
+}
+
+.hero-actions {
+  margin-top: 16px;
+}
+
+.hero-kpi {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  backdrop-filter: none;
+}
+
+.hero-kpi strong {
+  font-size: 18px;
+}
+
+.cards-grid-compact {
+  margin-bottom: 14px;
+}
+
+.cards-grid,
+.dashboard-grid {
+  gap: 12px;
+}
+
+.dashboard-grid-compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.stat-card,
+.section-card,
+.recommendation-card,
+.favorite-preview-card,
+.post-card,
+.faculty-card,
+.student-card {
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.stat-card .value,
+.insight-value {
+  font-size: 28px;
+}
+
+.section-card {
+  background: rgba(252, 251, 248, 0.88);
+}
+
+.section-card h3,
+.post-card h3,
+.faculty-card h3,
+.student-card h3 {
+  font-size: 18px;
+}
+
+.ghost-light-btn,
+.ghost-inline-btn,
+.favorite-room-btn,
+.favorite-toggle-btn,
+.filter-tab {
+  background: var(--panel-soft);
+  color: var(--navy-2);
+  border: 1px solid var(--line);
+}
+
+.save-btn {
+  background: linear-gradient(180deg, #ddbc84, #cfaa68);
+  color: #2a2d31;
+}
+
+.recommendation-card,
+.favorite-preview-card,
+.room-card,
+.message,
+.empty-chat-state,
+.empty-dashboard-state,
+.chat-search-box input,
+.chat-controls input,
+.input-area input,
+.profile-form input,
+.profile-form select,
+.profile-form textarea {
+  background: var(--panel-strong);
+}
+
+.chat-layout {
+  grid-template-columns: minmax(280px, 330px) minmax(0, 1fr);
+}
+
+.chat-rooms,
+.chat-panel {
+  background: transparent;
+}
+
+.chat-rooms {
+  padding: 18px;
+}
+
+.chat-header {
+  margin: 18px 18px 0;
+  padding: 16px 18px;
+  border-radius: 18px 18px 0 0;
+}
+
+.chat-header h2 {
+  font-size: 22px;
+}
+
+.messages {
+  padding-top: 18px;
+  gap: 10px;
+}
+
+.message {
+  border-radius: 16px 16px 16px 6px;
+  box-shadow: none;
+}
+
+.message.own {
+  border-radius: 16px 16px 6px 16px;
+  background: rgba(221, 188, 132, 0.2);
+}
+
+.input-area {
+  padding: 14px;
+  border-radius: 0 0 18px 18px;
+}
+
+.tag,
+.suggestion-chip,
+.chat-meta-chip {
+  background: rgba(34, 50, 69, 0.05);
+  color: var(--navy-2);
+  border: 1px solid rgba(34, 50, 69, 0.08);
+}
+
+.filter-tab.active,
+.favorite-room-btn.is-favorite,
+.favorite-toggle-btn.is-favorite,
+.suggestion-chip.active,
+.room-card.active {
+  background: rgba(221, 188, 132, 0.18);
+  border-color: rgba(221, 188, 132, 0.34);
+}
+
+body.dark {
+  background:
+    radial-gradient(circle at top left, rgba(207, 170, 104, 0.08), transparent 24%),
+    linear-gradient(180deg, #111722 0%, #0d141e 100%);
+}
+
+body.dark .sidebar {
+  background: rgba(17, 23, 34, 0.92);
+  color: var(--text);
+}
+
+body.dark .brand-title,
+body.dark .nav-btn,
+body.dark .ghost-btn,
+body.dark .profile-name {
+  color: var(--text);
+}
+
+body.dark .brand-subtitle,
+body.dark .profile-email,
+body.dark .menu-title,
+body.dark .profile-meta {
+  color: var(--muted);
+}
+
+body.dark .profile-card,
+body.dark .topbar,
+body.dark .main-panel,
+body.dark .section-card,
+body.dark .room-card,
+body.dark .chat-header,
+body.dark .input-area,
+body.dark .post-card,
+body.dark .faculty-card,
+body.dark .student-card,
+body.dark .stat-card,
+body.dark .recommendation-card,
+body.dark .favorite-preview-card,
+body.dark .auth-card,
+body.dark .hero-panel,
+body.dark .hero-kpi,
+body.dark .chat-search-box input,
+body.dark .chat-controls input,
+body.dark .input-area input,
+body.dark .profile-form input,
+body.dark .profile-form select,
+body.dark .profile-form textarea,
+body.dark .message,
+body.dark .empty-chat-state,
+body.dark .empty-dashboard-state {
+  background: rgba(17, 23, 34, 0.9);
+  border-color: var(--line);
+}
+
+body.dark .message.own {
+  background: rgba(207, 170, 104, 0.2);
+}
+
+body.dark .ghost-inline-btn,
+body.dark .ghost-light-btn,
+body.dark .favorite-room-btn,
+body.dark .favorite-toggle-btn,
+body.dark .filter-tab,
+body.dark .tag,
+body.dark .suggestion-chip,
+body.dark .chat-meta-chip,
+body.dark .chip {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  border-color: var(--line);
+}
+
+body.dark .filter-tab.active,
+body.dark .favorite-room-btn.is-favorite,
+body.dark .favorite-toggle-btn.is-favorite,
+body.dark .suggestion-chip.active,
+body.dark .room-card.active,
+body.dark .nav-btn.active {
+  background: rgba(207, 170, 104, 0.14);
+  border-color: rgba(207, 170, 104, 0.24);
+}
+
+@media (max-width: 1040px) {
+  .dashboard-grid-compact {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    border-radius: 24px;
+  }
+
+  .topbar {
+    padding: 16px 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .app {
+    padding: 10px;
+  }
+
+  .hero-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .cards-grid-compact {
+    grid-template-columns: 1fr;
+  }
+}
+
+#pageSubtitle:empty {
+  display: none;
+}
+
+.theme-toggle {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  width: auto;
+  height: auto;
+  padding: 0;
+  top: 20px;
+  right: 20px;
+  line-height: 1;
+}
+
+.theme-toggle:hover {
+  transform: none;
+  background: transparent;
+}
+
+.sidebar-actions {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.logout-btn {
+  padding: 8px 10px;
+  font-size: 12px;
+  border-radius: 10px;
+}
+
+.hero-panel {
+  grid-template-columns: minmax(0, 1fr) 180px;
+}
+
+.hero-actions {
+  margin-top: 0;
+}
+
+.dashboard-grid,
+.dashboard-grid-compact,
+.chat-suggestions {
+  display: none;
+}
+
+.cards-grid-compact {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 0;
+}
+
+.chat-room-header {
+  margin-bottom: 10px;
+}
+
+.chat-room-caption {
+  display: none;
+}
+
+.chat-filter-tabs {
+  margin-bottom: 12px;
+}
+
+.filter-tab {
+  border-radius: 999px;
+  padding: 10px 14px;
+}
+
+.room-list {
+  gap: 10px;
+}
+
+.room-card {
+  padding: 14px 16px;
+}
+
+.room-card-head {
+  align-items: flex-start;
+}
+
+.room-card-body {
+  min-width: 0;
+  flex: 1;
+  cursor: pointer;
+}
+
+.room-card-body:focus-visible {
+  outline: 2px solid rgba(207, 170, 104, 0.55);
+  outline-offset: 4px;
+  border-radius: 10px;
+}
+
+.room-card-subtitle {
+  margin-top: 6px;
+}
+
+.room-card-tags {
+  display: none;
+}
+
+.favorite-toggle-btn {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.chat-controls {
+  gap: 10px;
+}
+
+.chat-controls input {
+  width: 180px;
+}
+
+body.dark .theme-toggle {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+@media (max-width: 900px) {
+  .theme-toggle {
+    top: 16px;
+    right: 16px;
+  }
+
+  .cards-grid-compact {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar-topbar-actions {
+    gap: 6px;
+  }
+}
+
+:root {
+  --navy: #00537a;
+  --navy-2: #013c58;
+  --navy-3: #012f47;
+  --sky: #a8e8f9;
+  --gold: #f5a201;
+  --gold-dark: #ffba42;
+  --mint: #ffd258;
+  --bg: #fff4cf;
+  --panel: rgba(255, 248, 227, 0.82);
+  --panel-strong: #fff8e3;
+  --panel-soft: #ffeab4;
+  --text: #013c58;
+  --muted: rgba(1, 60, 88, 0.72);
+  --line: rgba(0, 83, 122, 0.14);
+  --shadow: 0 18px 40px rgba(1, 60, 88, 0.14);
+}
+
+body {
+  color: var(--text);
+  background:
+    radial-gradient(circle at top, rgba(255, 210, 88, 0.7), transparent 28%),
+    linear-gradient(180deg, #ffd258 0%, #ffba42 23%, #00537a 76%, #013c58 100%);
+}
+
+.auth-card {
+  background: rgba(255, 248, 227, 0.92);
+  border-color: rgba(0, 83, 122, 0.18);
+}
+
+.auth-card h2,
+.topbar h1,
+.section-title,
+.chat-header h2,
+.room-card strong,
+.section-card h3,
+.post-card h3,
+.faculty-card h3,
+.student-card h3,
+.brand-title {
+  color: #013c58;
+}
+
+.auth-card p,
+.brand-subtitle,
+.profile-email,
+.profile-meta,
+.menu-title,
+.chat-room-subtitle,
+.section-subtitle,
+.muted,
+.chat-room-caption,
+.room-card-subtitle,
+.topbar p,
+.chat-header p {
+  color: rgba(1, 60, 88, 0.72);
+}
+
+.sidebar {
+  background:
+    linear-gradient(180deg, rgba(1, 60, 88, 0.96) 0%, rgba(0, 83, 122, 0.96) 56%, rgba(1, 60, 88, 0.98) 100%);
+  border-color: rgba(168, 232, 249, 0.14);
+}
+
+.brand-title,
+.nav-btn,
+.ghost-btn,
+.profile-name {
+  color: #fff7de;
+}
+
+.brand-subtitle,
+.profile-email,
+.menu-title,
+.profile-meta {
+  color: rgba(255, 247, 222, 0.72);
+}
+
+.profile-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(168, 232, 249, 0.14);
+}
+
+.profile-avatar {
+  background: linear-gradient(135deg, #a8e8f9, #ffd258);
+  color: #013c58;
+}
+
+.nav-btn:hover {
+  background: rgba(168, 232, 249, 0.08);
+}
+
+.nav-btn.active {
+  background: linear-gradient(90deg, rgba(245, 162, 1, 0.24), rgba(168, 232, 249, 0.12));
+  color: #fff7de;
+  border-color: rgba(255, 210, 88, 0.3);
+}
+
+.ghost-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(168, 232, 249, 0.14);
+}
+
+.ghost-btn.danger {
+  color: #fff7de;
+}
+
+.logout-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 999px;
+  font-size: 16px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logout-btn-top {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(168, 232, 249, 0.14);
+}
+
+.theme-toggle {
+  color: #fff8e3;
+  text-shadow: 0 4px 12px rgba(1, 60, 88, 0.35);
+}
+
+.topbar,
+.main-panel,
+.section-card,
+.room-card,
+.chat-header,
+.input-area,
+.post-card,
+.faculty-card,
+.student-card,
+.stat-card,
+.insight-card,
+.campus-tile,
+.plain-item,
+.recommendation-card,
+.favorite-preview-card,
+.auth-card {
+  background: rgba(255, 248, 227, 0.9);
+  border-color: rgba(0, 83, 122, 0.14);
+  box-shadow: 0 18px 42px rgba(1, 60, 88, 0.16);
+}
+
+.chip {
+  background: rgba(168, 232, 249, 0.4);
+  border-color: rgba(0, 83, 122, 0.14);
+  color: #013c58;
+}
+
+.hero-panel {
+  background:
+    linear-gradient(135deg, rgba(255, 248, 227, 0.96) 0%, rgba(255, 234, 180, 0.98) 100%);
+  border-color: rgba(245, 162, 1, 0.18);
+}
+
+.hero-kpi,
+.stat-card {
+  background: rgba(168, 232, 249, 0.18);
+  border-color: rgba(0, 83, 122, 0.12);
+}
+
+.stat-card .label,
+.hero-kpi span,
+.insight-label {
+  color: rgba(1, 60, 88, 0.68);
+}
+
+.stat-card .value,
+.hero-kpi strong,
+.insight-value {
+  color: #013c58;
+}
+
+.save-btn {
+  background: linear-gradient(180deg, #f5a201, #ffba42);
+  color: #013c58;
+}
+
+.ghost-light-btn,
+.ghost-inline-btn,
+.favorite-room-btn,
+.favorite-toggle-btn,
+.filter-tab,
+.tag,
+.suggestion-chip,
+.chat-meta-chip {
+  background: rgba(168, 232, 249, 0.18);
+  color: #013c58;
+  border-color: rgba(0, 83, 122, 0.12);
+}
+
+.filter-tab.active,
+.favorite-room-btn.is-favorite,
+.favorite-toggle-btn.is-favorite,
+.suggestion-chip.active,
+.room-card.active {
+  background: rgba(245, 162, 1, 0.18);
+  border-color: rgba(245, 162, 1, 0.3);
+}
+
+.chat-rooms,
+.chat-panel {
+  background: transparent;
+}
+
+.chat-search-box input,
+.chat-controls input,
+.input-area input,
+.profile-form input,
+.profile-form select,
+.profile-form textarea,
+.message,
+.empty-chat-state,
+.empty-dashboard-state,
+.recommendation-card,
+.favorite-preview-card,
+.room-card {
+  background: rgba(255, 251, 238, 0.96);
+  border-color: rgba(0, 83, 122, 0.12);
+}
+
+.message.own {
+  background: rgba(245, 162, 1, 0.16);
+}
+
+.online-dot {
+  background: #a8e8f9;
+}
+
+body.dark {
+  color: #fff8e3;
+  background:
+    radial-gradient(circle at top, rgba(245, 162, 1, 0.25), transparent 24%),
+    linear-gradient(180deg, #013c58 0%, #012f47 52%, #001f30 100%);
+}
+
+body.dark .sidebar {
+  background: linear-gradient(180deg, rgba(0, 83, 122, 0.96), rgba(1, 60, 88, 0.98));
+}
+
+body.dark .profile-card,
+body.dark .topbar,
+body.dark .main-panel,
+body.dark .section-card,
+body.dark .room-card,
+body.dark .chat-header,
+body.dark .input-area,
+body.dark .post-card,
+body.dark .faculty-card,
+body.dark .student-card,
+body.dark .stat-card,
+body.dark .recommendation-card,
+body.dark .favorite-preview-card,
+body.dark .auth-card,
+body.dark .hero-panel,
+body.dark .hero-kpi,
+body.dark .chat-search-box input,
+body.dark .chat-controls input,
+body.dark .input-area input,
+body.dark .profile-form input,
+body.dark .profile-form select,
+body.dark .profile-form textarea,
+body.dark .message,
+body.dark .empty-chat-state,
+body.dark .empty-dashboard-state {
+  background: rgba(1, 60, 88, 0.88);
+  border-color: rgba(168, 232, 249, 0.16);
+}
+
+body.dark .brand-title,
+body.dark .nav-btn,
+body.dark .ghost-btn,
+body.dark .profile-name,
+body.dark .topbar h1,
+body.dark .section-title,
+body.dark .chat-header h2,
+body.dark .room-card strong,
+body.dark .section-card h3 {
+  color: #fff8e3;
+}
+
+body.dark .brand-subtitle,
+body.dark .profile-email,
+body.dark .menu-title,
+body.dark .profile-meta,
+body.dark .muted,
+body.dark .topbar p,
+body.dark .chat-header p,
+body.dark .room-card-subtitle,
+body.dark .section-subtitle {
+  color: rgba(255, 248, 227, 0.72);
+}
+
+body.dark .chip,
+body.dark .ghost-inline-btn,
+body.dark .ghost-light-btn,
+body.dark .favorite-room-btn,
+body.dark .favorite-toggle-btn,
+body.dark .filter-tab,
+body.dark .tag,
+body.dark .suggestion-chip,
+body.dark .chat-meta-chip {
+  background: rgba(168, 232, 249, 0.08);
+  color: #fff8e3;
+  border-color: rgba(168, 232, 249, 0.16);
+}
+
+body.dark .filter-tab.active,
+body.dark .favorite-room-btn.is-favorite,
+body.dark .favorite-toggle-btn.is-favorite,
+body.dark .suggestion-chip.active,
+body.dark .room-card.active,
+body.dark .nav-btn.active {
+  background: rgba(245, 162, 1, 0.18);
+  border-color: rgba(255, 210, 88, 0.28);
+}
+
+body.dark .message.own {
+  background: rgba(245, 162, 1, 0.14);
+}
+
+body.dark .theme-toggle {
+  color: #ffd258;
+  text-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+:root {
+  --navy: #27345c;
+  --navy-2: #324d7f;
+  --navy-3: #1f2a4a;
+  --sky: #3b79b8;
+  --gold: #f0ad3d;
+  --gold-dark: #d9962c;
+  --mint: #f3c96e;
+  --bg: #f4f1eb;
+  --panel: rgba(255, 251, 243, 0.88);
+  --panel-strong: #fffaf0;
+  --panel-soft: #f6ecd9;
+  --text: #24314f;
+  --muted: rgba(36, 49, 79, 0.68);
+  --line: rgba(39, 52, 92, 0.12);
+  --shadow: 0 18px 40px rgba(39, 52, 92, 0.12);
+}
+
+body {
+  color: var(--text);
+  background:
+    radial-gradient(circle at top, rgba(240, 173, 61, 0.2), transparent 24%),
+    linear-gradient(180deg, #f3eee4 0%, #ece4d3 100%);
+}
+
+.sidebar {
+  background: linear-gradient(180deg, #27345c 0%, #243254 60%, #1f2a4a 100%);
+  border-color: rgba(240, 173, 61, 0.18);
+}
+
+.profile-card,
+.logout-btn-top,
+.ghost-btn {
+  border-color: rgba(240, 173, 61, 0.16);
+}
+
+.profile-card {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.brand-title,
+.nav-btn,
+.ghost-btn,
+.profile-name,
+.ghost-btn.danger {
+  color: #f7d28b;
+}
+
+.brand-subtitle,
+.profile-email,
+.menu-title,
+.profile-meta {
+  color: rgba(255, 245, 222, 0.7);
+}
+
+.profile-avatar {
+  background: linear-gradient(135deg, #f0ad3d, #f3c96e);
+  color: #27345c;
+}
+
+.nav-btn:hover {
+  background: rgba(240, 173, 61, 0.08);
+}
+
+.nav-btn.active {
+  background: linear-gradient(90deg, rgba(240, 173, 61, 0.22), rgba(59, 121, 184, 0.14));
+  border-color: rgba(240, 173, 61, 0.24);
+  color: #fff1c8;
+}
+
+.theme-toggle {
+  color: #27345c;
+  text-shadow: 0 4px 12px rgba(240, 173, 61, 0.18);
+}
+
+.topbar,
+.main-panel,
+.section-card,
+.room-card,
+.chat-header,
+.input-area,
+.post-card,
+.faculty-card,
+.student-card,
+.stat-card,
+.insight-card,
+.campus-tile,
+.plain-item,
+.recommendation-card,
+.favorite-preview-card,
+.auth-card {
+  background: rgba(255, 250, 240, 0.92);
+  border-color: rgba(39, 52, 92, 0.1);
+  box-shadow: 0 18px 36px rgba(39, 52, 92, 0.1);
+}
+
+.topbar h1,
+.section-title,
+.chat-header h2,
+.room-card strong,
+.section-card h3,
+.post-card h3,
+.faculty-card h3,
+.student-card h3,
+.auth-card h2 {
+  color: #27345c;
+}
+
+.topbar p,
+.section-subtitle,
+.muted,
+.chat-room-caption,
+.room-card-subtitle,
+.chat-header p,
+.auth-card p {
+  color: rgba(39, 52, 92, 0.68);
+}
+
+.chip,
+.hero-kpi,
+.stat-card {
+  background: rgba(59, 121, 184, 0.08);
+  border-color: rgba(39, 52, 92, 0.1);
+}
+
+.hero-panel {
+  background: linear-gradient(135deg, rgba(255, 250, 240, 0.98), rgba(246, 236, 217, 0.98));
+  border-color: rgba(240, 173, 61, 0.18);
+}
+
+.save-btn {
+  background: linear-gradient(180deg, #f0ad3d, #d9962c);
+  color: #27345c;
+}
+
+.ghost-light-btn,
+.ghost-inline-btn,
+.favorite-room-btn,
+.favorite-toggle-btn,
+.filter-tab,
+.tag,
+.suggestion-chip,
+.chat-meta-chip {
+  background: rgba(59, 121, 184, 0.08);
+  color: #27345c;
+  border-color: rgba(39, 52, 92, 0.1);
+}
+
+.filter-tab.active,
+.favorite-room-btn.is-favorite,
+.favorite-toggle-btn.is-favorite,
+.suggestion-chip.active,
+.room-card.active {
+  background: rgba(240, 173, 61, 0.16);
+  border-color: rgba(240, 173, 61, 0.28);
+}
+
+.chat-search-box input,
+.chat-controls input,
+.input-area input,
+.profile-form input,
+.profile-form select,
+.profile-form textarea,
+.message,
+.empty-chat-state,
+.empty-dashboard-state {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(39, 52, 92, 0.1);
+}
+
+.message.own {
+  background: rgba(240, 173, 61, 0.14);
+}
+
+.online-dot {
+  background: #f0ad3d;
+}
+
+body.dark {
+  color: #f7eedb;
+  background:
+    radial-gradient(circle at top, rgba(240, 173, 61, 0.18), transparent 24%),
+    linear-gradient(180deg, #1f2a4a 0%, #27345c 50%, #1a223c 100%);
+}
+
+body.dark .sidebar {
+  background: linear-gradient(180deg, #324d7f 0%, #27345c 55%, #1f2a4a 100%);
+}
+
+body.dark .profile-card,
+body.dark .topbar,
+body.dark .main-panel,
+body.dark .section-card,
+body.dark .room-card,
+body.dark .chat-header,
+body.dark .input-area,
+body.dark .post-card,
+body.dark .faculty-card,
+body.dark .student-card,
+body.dark .stat-card,
+body.dark .recommendation-card,
+body.dark .favorite-preview-card,
+body.dark .auth-card,
+body.dark .hero-panel,
+body.dark .hero-kpi,
+body.dark .chat-search-box input,
+body.dark .chat-controls input,
+body.dark .input-area input,
+body.dark .profile-form input,
+body.dark .profile-form select,
+body.dark .profile-form textarea,
+body.dark .message,
+body.dark .empty-chat-state,
+body.dark .empty-dashboard-state {
+  background: rgba(39, 52, 92, 0.9);
+  border-color: rgba(240, 173, 61, 0.14);
+}
+
+body.dark .brand-title,
+body.dark .nav-btn,
+body.dark .ghost-btn,
+body.dark .profile-name,
+body.dark .topbar h1,
+body.dark .section-title,
+body.dark .chat-header h2,
+body.dark .room-card strong,
+body.dark .section-card h3,
+body.dark .auth-card h2 {
+  color: #f7d28b;
+}
+
+body.dark .brand-subtitle,
+body.dark .profile-email,
+body.dark .menu-title,
+body.dark .profile-meta,
+body.dark .muted,
+body.dark .topbar p,
+body.dark .chat-header p,
+body.dark .room-card-subtitle,
+body.dark .section-subtitle,
+body.dark .auth-card p {
+  color: rgba(247, 238, 219, 0.72);
+}
+
+body.dark .chip,
+body.dark .ghost-inline-btn,
+body.dark .ghost-light-btn,
+body.dark .favorite-room-btn,
+body.dark .favorite-toggle-btn,
+body.dark .filter-tab,
+body.dark .tag,
+body.dark .suggestion-chip,
+body.dark .chat-meta-chip {
+  background: rgba(59, 121, 184, 0.14);
+  color: #f7eedb;
+  border-color: rgba(240, 173, 61, 0.14);
+}
+
+body.dark .filter-tab.active,
+body.dark .favorite-room-btn.is-favorite,
+body.dark .favorite-toggle-btn.is-favorite,
+body.dark .suggestion-chip.active,
+body.dark .room-card.active,
+body.dark .nav-btn.active {
+  background: rgba(240, 173, 61, 0.18);
+  border-color: rgba(240, 173, 61, 0.28);
+}
+
+body.dark .message.own {
+  background: rgba(240, 173, 61, 0.16);
+}
+
+body.dark .theme-toggle {
+  color: #f7d28b;
+  text-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+}
+
+:root {
+  --navy: #22345b;
+  --navy-2: #35588d;
+  --navy-3: #1b2947;
+  --sky: #3c79b8;
+  --gold: #f0ad3d;
+  --gold-dark: #d9962c;
+  --mint: #f3c96e;
+  --bg: #f4f6fa;
+  --panel: rgba(255, 255, 255, 0.9);
+  --panel-strong: #ffffff;
+  --panel-soft: #f5f7fb;
+  --text: #24314f;
+  --muted: rgba(36, 49, 79, 0.68);
+  --line: rgba(34, 52, 91, 0.1);
+  --shadow: 0 18px 38px rgba(34, 52, 91, 0.1);
+}
+
+body {
+  color: var(--text);
+  background:
+    radial-gradient(circle at top, rgba(60, 121, 184, 0.1), transparent 22%),
+    linear-gradient(180deg, #f7f9fc 0%, #eef2f8 100%);
+}
+
+.sidebar {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(34, 52, 91, 0.08);
+}
+
+.profile-card,
+.logout-btn-top,
+.ghost-btn {
+  border-color: rgba(34, 52, 91, 0.1);
+}
+
+.profile-card,
+.logout-btn-top,
+.ghost-btn {
+  background: rgba(245, 247, 251, 0.95);
+}
+
+.brand-title,
+.nav-btn,
+.ghost-btn,
+.profile-name,
+.ghost-btn.danger,
+.brand-subtitle,
+.profile-email,
+.menu-title,
+.profile-meta {
+  color: #24314f;
+}
+
+.profile-avatar {
+  background: linear-gradient(135deg, #3c79b8, #f0ad3d);
+  color: #ffffff;
+}
+
+.nav-btn:hover {
+  background: rgba(60, 121, 184, 0.08);
+}
+
+.nav-btn.active {
+  background: linear-gradient(90deg, rgba(60, 121, 184, 0.12), rgba(240, 173, 61, 0.14));
+  border-color: rgba(60, 121, 184, 0.16);
+  color: #1b2947;
+}
+
+.theme-toggle {
+  color: #22345b;
+  text-shadow: none;
+}
+
+.topbar,
+.main-panel,
+.section-card,
+.room-card,
+.chat-header,
+.input-area,
+.post-card,
+.faculty-card,
+.student-card,
+.stat-card,
+.insight-card,
+.campus-tile,
+.plain-item,
+.recommendation-card,
+.favorite-preview-card,
+.auth-card {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(34, 52, 91, 0.08);
+  box-shadow: 0 18px 36px rgba(34, 52, 91, 0.08);
+}
+
+.chip,
+.hero-kpi,
+.stat-card {
+  background: rgba(60, 121, 184, 0.08);
+  border-color: rgba(34, 52, 91, 0.08);
+}
+
+.hero-panel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(245, 247, 251, 0.98));
+  border-color: rgba(34, 52, 91, 0.08);
+}
+
+.ghost-light-btn,
+.ghost-inline-btn,
+.favorite-room-btn,
+.favorite-toggle-btn,
+.filter-tab,
+.tag,
+.suggestion-chip,
+.chat-meta-chip {
+  background: rgba(60, 121, 184, 0.08);
+  color: #24314f;
+  border-color: rgba(34, 52, 91, 0.08);
+}
+
+.filter-tab.active,
+.favorite-room-btn.is-favorite,
+.favorite-toggle-btn.is-favorite,
+.suggestion-chip.active,
+.room-card.active {
+  background: rgba(60, 121, 184, 0.12);
+  border-color: rgba(60, 121, 184, 0.18);
+}
+
+.chat-search-box input,
+.chat-controls input,
+.input-area input,
+.profile-form input,
+.profile-form select,
+.profile-form textarea,
+.message,
+.empty-chat-state,
+.empty-dashboard-state {
+  background: #ffffff;
+  border-color: rgba(34, 52, 91, 0.08);
+}
+
+.message.own {
+  background: rgba(60, 121, 184, 0.12);
+}
+
+body.dark {
+  color: #ffffff;
+  background:
+    radial-gradient(circle at top, rgba(60, 121, 184, 0.14), transparent 22%),
+    linear-gradient(180deg, #0d1a31 0%, #10213f 55%, #0a1428 100%);
+}
+
+body.dark .sidebar {
+  background: linear-gradient(180deg, #122447 0%, #10203e 55%, #0b162d 100%);
+  border-color: rgba(60, 121, 184, 0.18);
+}
+
+body.dark .profile-card,
+body.dark .logout-btn-top,
+body.dark .ghost-btn,
+body.dark .topbar,
+body.dark .main-panel,
+body.dark .section-card,
+body.dark .room-card,
+body.dark .chat-header,
+body.dark .input-area,
+body.dark .post-card,
+body.dark .faculty-card,
+body.dark .student-card,
+body.dark .stat-card,
+body.dark .recommendation-card,
+body.dark .favorite-preview-card,
+body.dark .auth-card,
+body.dark .hero-panel,
+body.dark .hero-kpi,
+body.dark .chat-search-box input,
+body.dark .chat-controls input,
+body.dark .input-area input,
+body.dark .profile-form input,
+body.dark .profile-form select,
+body.dark .profile-form textarea,
+body.dark .message,
+body.dark .empty-chat-state,
+body.dark .empty-dashboard-state {
+  background: rgba(16, 32, 62, 0.92);
+  border-color: rgba(60, 121, 184, 0.14);
+}
+
+body.dark .brand-title,
+body.dark .nav-btn,
+body.dark .ghost-btn,
+body.dark .profile-name,
+body.dark .topbar h1,
+body.dark .section-title,
+body.dark .chat-header h2,
+body.dark .room-card strong,
+body.dark .section-card h3,
+body.dark .auth-card h2,
+body.dark .ghost-btn.danger,
+body.dark .brand-subtitle,
+body.dark .profile-email,
+body.dark .menu-title,
+body.dark .profile-meta,
+body.dark .muted,
+body.dark .topbar p,
+body.dark .chat-header p,
+body.dark .room-card-subtitle,
+body.dark .section-subtitle,
+body.dark .auth-card p {
+  color: #ffffff;
+}
+
+body.dark .chip,
+body.dark .ghost-inline-btn,
+body.dark .ghost-light-btn,
+body.dark .favorite-room-btn,
+body.dark .favorite-toggle-btn,
+body.dark .filter-tab,
+body.dark .tag,
+body.dark .suggestion-chip,
+body.dark .chat-meta-chip {
+  background: rgba(60, 121, 184, 0.14);
+  color: #ffffff;
+  border-color: rgba(60, 121, 184, 0.18);
+}
+
+body.dark .filter-tab.active,
+body.dark .favorite-room-btn.is-favorite,
+body.dark .favorite-toggle-btn.is-favorite,
+body.dark .suggestion-chip.active,
+body.dark .room-card.active,
+body.dark .nav-btn.active {
+  background: rgba(60, 121, 184, 0.22);
+  border-color: rgba(60, 121, 184, 0.28);
+}
+
+body.dark .message.own {
+  background: rgba(60, 121, 184, 0.2);
+}
+
+body.dark .theme-toggle {
+  color: #ffffff;
+  text-shadow: none;
 }

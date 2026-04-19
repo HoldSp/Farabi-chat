@@ -2,6 +2,8 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import path from "path";
+import { randomUUID } from "crypto";
+import crypto from "crypto";
 import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 import nodemailer from "nodemailer";
@@ -20,6 +22,8 @@ import {
 
 dotenv.config();
 
+mongoose.set("bufferCommands", false);
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -37,21 +41,25 @@ app.use(express.static(publicPath));
 app.use(express.json());
 
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/kaznu-chat";
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const MAIL_USER = process.env.MAIL_USER;
 const MAIL_PASS = process.env.MAIL_PASS;
-const DISABLE_EMAIL = process.env.DISABLE_EMAIL === "true";
-
-console.log("⚙️ Конфигурация загружена:");
-console.log("   - PORT:", PORT);
-console.log("   - MAIL_USER:", MAIL_USER ? "✅ установлен" : "❌ НЕ установлен");
-console.log("   - MAIL_PASS:", MAIL_PASS ? "✅ установлен" : "❌ НЕ установлен");
-console.log("   - DISABLE_EMAIL:", DISABLE_EMAIL, "(процесс.env значение:", process.env.DISABLE_EMAIL, ")");
+const DISABLE_EMAIL = process.env.DISABLE_EMAIL !== "false";
+const AUTH_COOKIE_NAME = "farabi_auth";
+const AUTH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+const AUTH_TOKEN_SECRET = process.env.AUTH_TOKEN_SECRET || "dev-auth-token-secret-change-me";
 
 let mongoReady = false;
+const demoStore = {
+  users: [],
+  pendingRegistrations: [],
+  events: [],
+  announcements: [],
+  messages: []
+};
 
 mongoose
-  .connect(MONGO_URI)
+  .connect(MONGO_URI, { serverSelectionTimeoutMS: 5000 })
   .then(async () => {
     mongoReady = true;
     console.log("MongoDB подключена");
@@ -158,13 +166,27 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-const mailTransporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: MAIL_USER,
-    pass: MAIL_PASS,
-  },
-});
+const mailTransporter =
+  !DISABLE_EMAIL && MAIL_USER && MAIL_PASS
+    ? nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: MAIL_USER,
+          pass: MAIL_PASS,
+        },
+      })
+    : null;
+
+if (mailTransporter) {
+  mailTransporter
+    .verify()
+    .then(() => {
+      console.log("SMTP подключен");
+    })
+    .catch((mailErr) => {
+      console.error("Ошибка SMTP:", mailErr.message);
+    });
+}
 
 function parseNameFromKaznuEmail(email) {
   const local = String(email || "").trim().toLowerCase().split("@")[0];
@@ -182,8 +204,8 @@ function parseNameFromKaznuEmail(email) {
 }
 
 async function sendVerificationEmail(targetEmail, verificationCode) {
-  if (DISABLE_EMAIL) {
-    console.log("⚠️ Отправка писем отключена (DISABLE_EMAIL=true)");
+  if (DISABLE_EMAIL || !mailTransporter) {
+    console.log("Отправка писем отключена для локального запуска");
     return;
   }
 
@@ -198,6 +220,7 @@ async function sendVerificationEmail(targetEmail, verificationCode) {
     console.log("📬 Response ID:", info.response);
   } catch (mailErr) {
     console.error("❌ Ошибка отправки письма:", mailErr.message);
+    throw new Error("Не удалось отправить письмо с кодом подтверждения");
   }
 }
 
@@ -206,6 +229,259 @@ const Event = mongoose.model("Event", eventSchema);
 const Announcement = mongoose.model("Announcement", announcementSchema);
 const User = mongoose.model("User", userSchema);
 const PendingRegistration = mongoose.model("PendingRegistration", pendingRegistrationSchema);
+
+function createDemoId() {
+  return randomUUID();
+}
+
+function getAuthCookieOptions() {
+  return {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: AUTH_COOKIE_MAX_AGE,
+    path: "/"
+  };
+}
+
+function parseCookieHeader(cookieHeader) {
+  return String(cookieHeader || "")
+    .split(";")
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .reduce((result, entry) => {
+      const separatorIndex = entry.indexOf("=");
+      if (separatorIndex === -1) return result;
+      const key = entry.slice(0, separatorIndex).trim();
+      const value = entry.slice(separatorIndex + 1).trim();
+      result[key] = decodeURIComponent(value);
+      return result;
+    }, {});
+}
+
+function createAuthToken(user) {
+  const payload = {
+    email: normalizeEmail(user?.email),
+    role: user?.role || "student",
+    exp: Date.now() + AUTH_COOKIE_MAX_AGE
+  };
+  const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
+  const signature = crypto.createHmac("sha256", AUTH_TOKEN_SECRET).update(encodedPayload).digest("base64url");
+  return `${encodedPayload}.${signature}`;
+}
+
+function readAuthTokenPayload(token) {
+  if (!token || !token.includes(".")) return null;
+
+  const [encodedPayload, signature] = token.split(".");
+  if (!encodedPayload || !signature) return null;
+
+  const expectedSignature = crypto.createHmac("sha256", AUTH_TOKEN_SECRET).update(encodedPayload).digest("base64url");
+  const providedBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expectedSignature);
+
+  if (providedBuffer.length !== expectedBuffer.length || !crypto.timingSafeEqual(providedBuffer, expectedBuffer)) {
+    return null;
+  }
+
+  try {
+    const payload = JSON.parse(Buffer.from(encodedPayload, "base64url").toString("utf8"));
+    if (!payload?.email || !payload?.exp || payload.exp < Date.now()) {
+      return null;
+    }
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+function setAuthCookie(res, user) {
+  res.cookie(AUTH_COOKIE_NAME, createAuthToken(user), getAuthCookieOptions());
+}
+
+function clearAuthCookie(res) {
+  res.clearCookie(AUTH_COOKIE_NAME, getAuthCookieOptions());
+}
+
+async function hashPlaintextPassword(password) {
+  const salt = await bcrypt.genSalt(10);
+  return bcrypt.hash(String(password || "").trim(), salt);
+}
+
+function formatUserResponse(user) {
+  return {
+    id: String(user?._id || user?.id || ""),
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
+    displayName: user?.displayName || "",
+    email: user?.email || "",
+    faculty: user?.faculty || "",
+    specialty: user?.specialty || "",
+    course: user?.course || "",
+    bio: user?.bio || "",
+    role: user?.role || "student"
+  };
+}
+
+async function getAuthenticatedUser(req) {
+  const cookies = parseCookieHeader(req.headers.cookie);
+  const authPayload = readAuthTokenPayload(cookies[AUTH_COOKIE_NAME]);
+
+  if (!authPayload?.email) {
+    return null;
+  }
+
+  if (!mongoReady) {
+    const user = findDemoUser(authPayload.email);
+    return user && user.isEmailVerified ? user : null;
+  }
+
+  const user = await User.findOne({ email: normalizeEmail(authPayload.email) });
+  return user && user.isEmailVerified ? user : null;
+}
+
+function findDemoUser(email) {
+  const normalizedEmail = normalizeEmail(email);
+  return demoStore.users.find((user) => user.email === normalizedEmail) || null;
+}
+
+function findDemoPendingRegistration(email) {
+  const normalizedEmail = normalizeEmail(email);
+  return demoStore.pendingRegistrations.find((user) => user.email === normalizedEmail) || null;
+}
+
+function sortByCreatedDesc(items) {
+  return [...items].sort((left, right) => {
+    const leftTime = new Date(left.createdAt || 0).getTime();
+    const rightTime = new Date(right.createdAt || 0).getTime();
+    return rightTime - leftTime;
+  });
+}
+
+function sortByCreatedAsc(items) {
+  return [...items].sort((left, right) => {
+    const leftTime = new Date(left.createdAt || 0).getTime();
+    const rightTime = new Date(right.createdAt || 0).getTime();
+    return leftTime - rightTime;
+  });
+}
+
+async function seedDemoFallbackData() {
+  if (demoStore.events.length === 0) {
+    const now = new Date().toISOString();
+    demoStore.events.push(
+      {
+        id: createDemoId(),
+        title: "Ярмарка студенческих клубов",
+        description: "Познакомься с клубами, сообществами и инициативами КазНУ.",
+        date: "22 марта • 14:00",
+        place: "Главный корпус",
+        faculty: "Все факультеты",
+        tags: ["Клубы", "Студенты", "Нетворкинг"],
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: createDemoId(),
+        title: "Workshop по публичным выступлениям",
+        description: "Практическая сессия по ораторскому мастерству и уверенной подаче.",
+        date: "24 марта • 15:30",
+        place: "Конференц-зал",
+        faculty: "Все факультеты",
+        tags: ["Навыки", "Выступления"],
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: createDemoId(),
+        title: "Встреча по студенческим стартапам",
+        description: "Обсуждение идей приложений, MVP и первых шагов в запуске проекта.",
+        date: "27 марта • 17:00",
+        place: "Coworking zone",
+        faculty: "IT / CS",
+        tags: ["Стартап", "AI", "Разработка"],
+        createdAt: now,
+        updatedAt: now
+      }
+    );
+  }
+
+  if (demoStore.announcements.length === 0) {
+    const now = new Date().toISOString();
+    demoStore.announcements.push(
+      {
+        id: createDemoId(),
+        title: "Открыта регистрация на день карьеры",
+        text: "Студенты могут зарегистрироваться до пятницы. Участие бесплатное.",
+        meta: "Карьера • Сегодня",
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: createDemoId(),
+        title: "Лекция по международному праву",
+        text: "Приглашённый эксперт выступит в актовом зале в 16:00.",
+        meta: "ФМО • Завтра",
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: createDemoId(),
+        title: "Приём заявок в студенческие клубы",
+        text: "Открыт набор в студенческие объединения и клубы кампуса.",
+        meta: "Студсовет • Эта неделя",
+        createdAt: now,
+        updatedAt: now
+      }
+    );
+  }
+
+  if (demoStore.users.length === 0) {
+    const now = new Date().toISOString();
+    demoStore.users.push(
+      {
+        id: createDemoId(),
+        firstName: "Baiken",
+        lastName: "Turlybek",
+        displayName: "Farabi Admin",
+        bio: "Куратор платформы и администратор демо-режима.",
+        email: "turlybek_baiken@live.kaznu.kz",
+        password: await hashPlaintextPassword("admin123"),
+        faculty: "Факультет информационных технологий",
+        specialty: "Программная инженерия",
+        course: 4,
+        isEmailVerified: true,
+        verificationCode: null,
+        verificationExpires: null,
+        role: "admin",
+        lastSeen: new Date(),
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: createDemoId(),
+        firstName: "Alikhan",
+        lastName: "Serik",
+        displayName: "Алихан",
+        bio: "Студент, который тестирует новые комнаты и события.",
+        email: "serik_alikhan@live.kaznu.kz",
+        password: await hashPlaintextPassword("student123"),
+        faculty: "Международные отношения (ФМО)",
+        specialty: "Международные отношения",
+        course: 2,
+        isEmailVerified: true,
+        verificationCode: null,
+        verificationExpires: null,
+        role: "student",
+        lastSeen: new Date(),
+        createdAt: now,
+        updatedAt: now
+      }
+    );
+  }
+}
+
+await seedDemoFallbackData();
 
 async function seedDemoData() {
   try {
@@ -310,6 +586,51 @@ app.post("/api/register", async (req, res) => {
     if (!validation.valid) return res.status(400).json({ error: validation.error });
 
     const numericCourse = Number(course);
+
+    if (!mongoReady) {
+      const existingUser = findDemoUser(normalizedEmail);
+
+      if (existingUser?.isEmailVerified) {
+        return res.status(400).json({ error: "Пользователь с такой почтой уже существует" });
+      }
+
+      const verificationCode = String(Math.floor(100000 + Math.random() * 900000));
+      const role = normalizedEmail === "turlybek_baiken@live.kaznu.kz" ? "admin" : "student";
+      const hashedPassword = await hashPlaintextPassword(password);
+      const pendingRegistration = findDemoPendingRegistration(normalizedEmail);
+      const pendingPayload = {
+        id: pendingRegistration?.id || createDemoId(),
+        firstName: autoFirstName,
+        lastName: autoLastName,
+        displayName: nickname.trim(),
+        email: normalizedEmail,
+        password: hashedPassword,
+        faculty: faculty.trim(),
+        specialty: specialty.trim(),
+        course: numericCourse,
+        verificationCode,
+        verificationExpires: new Date(Date.now() + 10 * 60 * 1000),
+        role,
+        createdAt: pendingRegistration?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      if (pendingRegistration) {
+        Object.assign(pendingRegistration, pendingPayload);
+      } else {
+        demoStore.pendingRegistrations.push(pendingPayload);
+      }
+
+      console.log("Код подтверждения для", normalizedEmail, ":", verificationCode);
+      await sendVerificationEmail(normalizedEmail, verificationCode);
+
+      return res.status(201).json({
+        message: "Код подтверждения отправлен. Аккаунт будет создан после подтверждения почты.",
+        needsVerification: true,
+        email: normalizedEmail
+      });
+    }
+
     const existingUser = await User.findOne({ email: normalizedEmail });
 
     if (existingUser?.isEmailVerified) {
@@ -375,6 +696,55 @@ app.post("/api/verify-email", async (req, res) => {
     if (!validation.valid) return res.status(400).json({ error: validation.error });
 
     const normalizedEmail = normalizeEmail(email);
+
+    if (!mongoReady) {
+      const existingUser = findDemoUser(normalizedEmail);
+
+      if (existingUser?.isEmailVerified) {
+        return res.json({ message: "Почта уже подтверждена" });
+      }
+
+      const pendingRegistration = findDemoPendingRegistration(normalizedEmail);
+
+      if (!pendingRegistration) {
+        return res.status(404).json({ error: "Заявка на регистрацию не найдена" });
+      }
+
+      if (!pendingRegistration.verificationCode || !pendingRegistration.verificationExpires) {
+        return res.status(400).json({ error: "Код подтверждения не найден" });
+      }
+      if (new Date() > new Date(pendingRegistration.verificationExpires)) {
+        return res.status(400).json({ error: "Код истёк" });
+      }
+      if (String(pendingRegistration.verificationCode).trim() !== String(code).trim()) {
+        return res.status(400).json({ error: "Неверный код" });
+      }
+
+      demoStore.users = demoStore.users.filter((user) => user.email !== normalizedEmail);
+      demoStore.users.push({
+        id: createDemoId(),
+        firstName: pendingRegistration.firstName,
+        lastName: pendingRegistration.lastName,
+        displayName: pendingRegistration.displayName || "",
+        bio: "",
+        email: pendingRegistration.email,
+        password: pendingRegistration.password,
+        faculty: pendingRegistration.faculty,
+        specialty: pendingRegistration.specialty,
+        course: pendingRegistration.course,
+        isEmailVerified: true,
+        verificationCode: null,
+        verificationExpires: null,
+        role: pendingRegistration.role,
+        lastSeen: new Date(),
+        createdAt: pendingRegistration.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+      demoStore.pendingRegistrations = demoStore.pendingRegistrations.filter((user) => user.email !== normalizedEmail);
+
+      return res.json({ message: "Почта успешно подтверждена" });
+    }
+
     const existingUser = await User.findOne({ email: normalizedEmail });
 
     if (existingUser?.isEmailVerified) {
@@ -452,6 +822,26 @@ app.post("/api/login", async (req, res) => {
     if (!validation.valid) return res.status(400).json({ error: validation.error });
 
     const normalizedEmail = normalizeEmail(email);
+
+    if (!mongoReady) {
+      const user = findDemoUser(normalizedEmail);
+
+      if (!user) return res.status(404).json({ error: "Пользователь не найден" });
+      if (!user.isEmailVerified) return res.status(403).json({ error: "Сначала подтверди почту" });
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) return res.status(400).json({ error: "Неверный пароль" });
+
+      user.lastSeen = new Date();
+      user.updatedAt = new Date().toISOString();
+      setAuthCookie(res, user);
+
+      return res.json({
+        message: "Вход выполнен",
+        user: formatUserResponse(user)
+      });
+    }
+
     const user = await User.findOne({ email: normalizedEmail });
 
     if (!user) return res.status(404).json({ error: "Пользователь не найден" });
@@ -462,21 +852,11 @@ app.post("/api/login", async (req, res) => {
 
     user.lastSeen = new Date();
     await user.save();
+    setAuthCookie(res, user);
 
     res.json({
       message: "Вход выполнен",
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        displayName: user.displayName,
-        email: user.email,
-        faculty: user.faculty,
-        specialty: user.specialty,
-        course: user.course,
-        bio: user.bio,
-        role: user.role
-      }
+      user: formatUserResponse(user)
     });
   } catch (err) {
     console.error("Ошибка /api/login:", err);
@@ -484,17 +864,23 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+app.post("/api/logout", (req, res) => {
+  clearAuthCookie(res);
+  res.json({ message: "Выход выполнен" });
+});
+
 app.delete("/api/messages/:id", async (req, res) => {
   try {
-    const { adminEmail } = req.body;
     const id = req.params.id;
+    const admin = await getAuthenticatedUser(req);
 
-    const admin = await User.findOne({
-      email: String(adminEmail || "").trim().toLowerCase()
-    });
-
-    if (!admin || admin.role !== "admin" || !admin.isEmailVerified) {
+    if (!admin || admin.role !== "admin") {
       return res.status(403).json({ error: "Доступ запрещён" });
+    }
+
+    if (!mongoReady) {
+      demoStore.messages = demoStore.messages.filter((message) => message.id !== id);
+      return res.json({ message: "Сообщение удалено" });
     }
 
     await Message.findByIdAndDelete(id);
@@ -517,7 +903,7 @@ app.get("/", (req, res) => {
 app.get("/api/events", async (req, res) => {
   try {
     if (!mongoReady) {
-      return res.json([]);
+      return res.json(sortByCreatedDesc(demoStore.events));
     }
 
     const events = await Event.find().sort({ createdAt: -1, _id: -1 });
@@ -530,14 +916,24 @@ app.get("/api/events", async (req, res) => {
 
 app.post("/api/admin/make-admin", async (req, res) => {
   try {
-    const { adminEmail, targetEmail } = req.body;
+    const { targetEmail } = req.body;
+    const admin = await getAuthenticatedUser(req);
 
-    const admin = await User.findOne({
-      email: String(adminEmail || "").trim().toLowerCase()
-    });
-
-    if (!admin || admin.role !== "admin" || !admin.isEmailVerified) {
+    if (!admin || admin.role !== "admin") {
       return res.status(403).json({ error: "Доступ запрещён" });
+    }
+
+    if (!mongoReady) {
+      const targetUser = findDemoUser(targetEmail);
+
+      if (!targetUser) {
+        return res.status(404).json({ error: "Пользователь не найден" });
+      }
+
+      targetUser.role = "admin";
+      targetUser.updatedAt = new Date().toISOString();
+
+      return res.json({ message: "Админ успешно назначен" });
     }
 
     const targetUser = await User.findOne({
@@ -560,18 +956,36 @@ app.post("/api/admin/make-admin", async (req, res) => {
 
 app.post("/api/events", async (req, res) => {
   try {
-    if (!mongoReady) {
-      return res.status(500).json({ error: "MongoDB не подключена" });
+    const { title, description, date, place, faculty, tags } = req.body;
+    const admin = await getAuthenticatedUser(req);
+
+    if (!admin || admin.role !== "admin") {
+      return res.status(403).json({ error: "Доступ запрещён" });
     }
 
-    const { title, description, date, place, faculty, tags, adminEmail } = req.body;
+    if (!mongoReady) {
+      if (!title || !description || !date || !place) {
+        return res
+          .status(400)
+          .json({ error: "Заполни title, description, date, place" });
+      }
 
-    const admin = await User.findOne({
-      email: String(adminEmail || "").trim().toLowerCase()
-    });
+      const event = {
+        id: createDemoId(),
+        title: title.trim(),
+        description: description.trim(),
+        date: date.trim(),
+        place: place.trim(),
+        faculty: (faculty || "Все факультеты").trim(),
+        tags: Array.isArray(tags)
+          ? tags.map((tag) => String(tag).trim()).filter(Boolean)
+          : [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
 
-    if (!admin || admin.role !== "admin" || !admin.isEmailVerified) {
-      return res.status(403).json({ error: "Доступ запрещён" });
+      demoStore.events.unshift(event);
+      return res.status(201).json(event);
     }
 
     if (!title || !description || !date || !place) {
@@ -601,6 +1015,15 @@ app.post("/api/events", async (req, res) => {
 
 app.get("/api/stats", async (req, res) => {
   try {
+    if (!mongoReady) {
+      return res.json({
+        totalUsers: demoStore.users.filter((user) => user.isEmailVerified).length,
+        onlineUsers: demoStore.users.filter((user) => user.isEmailVerified && new Date(user.lastSeen || 0) >= new Date(Date.now() - 5 * 60 * 1000)).length,
+        totalEvents: demoStore.events.length,
+        storageMode: "demo"
+      });
+    }
+
     const totalUsers = await User.countDocuments({ isEmailVerified: true });
 
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
@@ -614,7 +1037,8 @@ app.get("/api/stats", async (req, res) => {
     res.json({
       totalUsers,
       onlineUsers,
-      totalEvents
+      totalEvents,
+      storageMode: "database"
     });
   } catch (err) {
     console.error("Ошибка /api/stats:", err);
@@ -624,16 +1048,16 @@ app.get("/api/stats", async (req, res) => {
 
 app.post("/api/presence", async (req, res) => {
   try {
-    const { email } = req.body;
+    const user = await getAuthenticatedUser(req);
 
-    if (!email) {
-      return res.status(400).json({ error: "Email обязателен" });
+    if (!user) {
+      return res.status(401).json({ error: "Требуется авторизация" });
     }
 
-    const user = await User.findOne({ email: normalizeEmail(email) });
-
-    if (!user || !user.isEmailVerified) {
-      return res.status(404).json({ error: "Пользователь не найден" });
+    if (!mongoReady) {
+      user.lastSeen = new Date();
+      user.updatedAt = new Date().toISOString();
+      return res.json({ message: "Presence updated" });
     }
 
     user.lastSeen = new Date();
@@ -649,7 +1073,7 @@ app.post("/api/presence", async (req, res) => {
 app.get("/api/announcements", async (req, res) => {
   try {
     if (!mongoReady) {
-      return res.json([]);
+      return res.json(sortByCreatedDesc(demoStore.announcements));
     }
 
     const announcements = await Announcement.find().sort({
@@ -665,18 +1089,29 @@ app.get("/api/announcements", async (req, res) => {
 
 app.post("/api/announcements", async (req, res) => {
   try {
-    if (!mongoReady) {
-      return res.status(500).json({ error: "MongoDB не подключена" });
+    const { title, text, meta } = req.body;
+    const admin = await getAuthenticatedUser(req);
+
+    if (!admin || admin.role !== "admin") {
+      return res.status(403).json({ error: "Доступ запрещён" });
     }
 
-    const { title, text, meta, adminEmail } = req.body;
+    if (!mongoReady) {
+      if (!title || !text || !meta) {
+        return res.status(400).json({ error: "Заполни title, text, meta" });
+      }
 
-    const admin = await User.findOne({
-      email: String(adminEmail || "").trim().toLowerCase()
-    });
+      const announcement = {
+        id: createDemoId(),
+        title: title.trim(),
+        text: text.trim(),
+        meta: meta.trim(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
 
-    if (!admin || admin.role !== "admin" || !admin.isEmailVerified) {
-      return res.status(403).json({ error: "Доступ запрещён" });
+      demoStore.announcements.unshift(announcement);
+      return res.status(201).json(announcement);
     }
 
     if (!title || !text || !meta) {
@@ -711,7 +1146,7 @@ io.on("connection", async (socket) => {
 
       socket.emit("chat history", messages);
     } else {
-      socket.emit("chat history", []);
+      socket.emit("chat history", sortByCreatedAsc(demoStore.messages.filter((message) => message.room === currentRoom)).slice(-100));
     }
   } catch (err) {
     console.error("Ошибка загрузки истории:", err.message);
@@ -734,7 +1169,7 @@ io.on("connection", async (socket) => {
 
         socket.emit("chat history", messages);
       } else {
-        socket.emit("chat history", []);
+        socket.emit("chat history", sortByCreatedAsc(demoStore.messages.filter((message) => message.room === currentRoom)).slice(-100));
       }
     } catch (err) {
       console.error("Ошибка загрузки комнаты:", err.message);
@@ -765,7 +1200,14 @@ io.on("connection", async (socket) => {
         await message.save();
         io.to(room).emit("chat message", message.toObject());
       } else {
-        io.to(room).emit("chat message", messageData);
+        const message = {
+          id: createDemoId(),
+          ...messageData,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        demoStore.messages.push(message);
+        io.to(room).emit("chat message", message);
       }
     } catch (err) {
       console.error("Ошибка сообщения:", err.message);
@@ -779,20 +1221,25 @@ io.on("connection", async (socket) => {
 
 app.put("/api/profile", async (req, res) => {
   try {
-    const { email, displayName, bio } = req.body;
+    const { displayName, bio } = req.body;
+    const user = await getAuthenticatedUser(req);
 
-    let validation = validateRequiredField(email, "Email");
+    if (!user) {
+      return res.status(401).json({ error: "Требуется авторизация" });
+    }
+
+    let validation = validateNickname(displayName);
     if (!validation.valid) return res.status(400).json({ error: validation.error });
 
-    validation = validateNickname(displayName);
-    if (!validation.valid) return res.status(400).json({ error: validation.error });
+    if (!mongoReady) {
+      user.displayName = String(displayName || "").trim();
+      user.bio = String(bio || "").trim();
+      user.updatedAt = new Date().toISOString();
 
-    const user = await User.findOne({
-      email: String(email || "").trim().toLowerCase()
-    });
-
-    if (!user || !user.isEmailVerified) {
-      return res.status(404).json({ error: "Пользователь не найден" });
+      return res.json({
+        message: "Профиль обновлён",
+        user: formatUserResponse(user)
+      });
     }
 
     user.displayName = String(displayName || "").trim();
@@ -802,18 +1249,7 @@ app.put("/api/profile", async (req, res) => {
 
     res.json({
       message: "Профиль обновлён",
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        displayName: user.displayName,
-        email: user.email,
-        faculty: user.faculty,
-        specialty: user.specialty,
-        course: user.course,
-        bio: user.bio,
-        role: user.role
-      }
+      user: formatUserResponse(user)
     });
   } catch (err) {
     console.error("Ошибка /api/profile:", err);
@@ -823,33 +1259,24 @@ app.put("/api/profile", async (req, res) => {
 
 app.post("/api/validate-user", async (req, res) => {
   try {
-    const { email } = req.body;
+    const user = await getAuthenticatedUser(req);
 
-    if (!email) {
-      return res.status(400).json({ error: "Email обязателен" });
+    if (!user) {
+      return res.status(401).json({ error: "Требуется авторизация" });
     }
 
-    const user = await User.findOne({ email: normalizeEmail(email) });
-
-    if (!user || !user.isEmailVerified) {
-      return res.status(404).json({ error: "Пользователь не найден или не верифицирован" });
+    if (!mongoReady) {
+      return res.json({
+        message: "Пользователь валиден",
+        valid: true,
+        user: formatUserResponse(user)
+      });
     }
 
     res.json({
       message: "Пользователь валиден",
       valid: true,
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        displayName: user.displayName,
-        email: user.email,
-        faculty: user.faculty,
-        specialty: user.specialty,
-        course: user.course,
-        bio: user.bio,
-        role: user.role
-      }
+      user: formatUserResponse(user)
     });
   } catch (err) {
     console.error("Ошибка /api/validate-user:", err);

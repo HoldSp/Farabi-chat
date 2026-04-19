@@ -9,6 +9,8 @@ node_modules/
 logs/
 coverage/
 dist/
+playwright-report/
+test-results/
 .vercel/
 .parcel-cache/
 .vscode/
