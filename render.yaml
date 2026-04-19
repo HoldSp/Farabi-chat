@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: farabi-chat
+    runtime: node
+    plan: free
+    autoDeploy: true
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/stats
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DISABLE_EMAIL
+        value: false
+      - key: MONGO_URI
+        sync: false
+      - key: MAIL_USER
+        sync: false
+      - key: MAIL_PASS
+        sync: false
+      - key: AUTH_TOKEN_SECRET
+        sync: false

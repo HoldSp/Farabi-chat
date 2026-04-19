@@ -260,6 +260,25 @@ Admin actions:
 - search and filtering for announcements and events
 - deployment configuration for cloud hosting
 
+## Deploy On Render
+
+This repository now includes a `render.yaml` file for easy deployment on Render.
+
+Steps:
+
+1. Push the repository to GitHub.
+2. In Render, choose `New +` -> `Blueprint`.
+3. Select this GitHub repository.
+4. Set the required environment variables in Render:
+    - `MONGO_URI`
+    - `MAIL_USER`
+    - `MAIL_PASS`
+    - `AUTH_TOKEN_SECRET`
+5. Keep `DISABLE_EMAIL=false` if you want real verification emails.
+6. Deploy the web service.
+
+The application will start with `npm start` and Render will provide the public URL.
+
 ## License
 
 ISC
