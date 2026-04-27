@@ -114,6 +114,10 @@ const systemStatusBanner = $("systemStatusBanner");
 const authStatusBadge = $("authStatusBadge");
 const authMessage = $("authMessage");
 const demoCredentials = $("demoCredentials");
+const demoPanelTitle = $("demoPanelTitle");
+const demoPanelDescription = $("demoPanelDescription");
+const demoStudentHint = $("demoStudentHint");
+const demoAdminHint = $("demoAdminHint");
 const fillStudentDemoBtn = $("fillStudentDemoBtn");
 const fillAdminDemoBtn = $("fillAdminDemoBtn");
 
@@ -322,7 +326,25 @@ function updateModeUI(storageMode) {
   }
 
   if (demoCredentials) {
-    demoCredentials.hidden = !isDemoMode;
+    demoCredentials.hidden = false;
+  }
+
+  if (demoPanelTitle) {
+    demoPanelTitle.textContent = isDemoMode ? "Демо-режим активен" : "Быстрый вход для демо";
+  }
+
+  if (demoPanelDescription) {
+    demoPanelDescription.textContent = isDemoMode
+      ? "Сервис работает на локальном хранилище. Демонстрационные аккаунты и сценарии готовы для записи."
+      : "Открой готовый студенческий или админский сценарий одним кликом и начинай запись сразу после запуска.";
+  }
+
+  if (demoStudentHint) {
+    demoStudentHint.textContent = "Студент: serik_alikhan@live.kaznu.kz / student123";
+  }
+
+  if (demoAdminHint) {
+    demoAdminHint.textContent = "Админ: turlybek_baiken@live.kaznu.kz / admin123";
   }
 
   if (systemStatusBanner) {
@@ -349,6 +371,53 @@ function fillDemoCredentials(role) {
   }
 
   setInlineMessage(authMessage, `Демо-данные для роли «${role === "admin" ? "админ" : "студент"}» заполнены.`, "info");
+}
+
+function getDefaultFavoriteRooms(user) {
+  if (!user?.email) {
+    return ["global", "general:events", "general:study-help"];
+  }
+
+  const email = String(user.email).toLowerCase();
+  if (email === "turlybek_baiken@live.kaznu.kz") {
+    return ["global", "general:events", "faculty:Факультет информационных технологий"];
+  }
+
+  if (email === "serik_alikhan@live.kaznu.kz") {
+    return ["global", "general:events", "faculty:Международные отношения (ФМО)", "general:study-help"];
+  }
+
+  return ["global", "general:events", "general:study-help"];
+}
+
+function seedFavoriteRoomsIfNeeded() {
+  const currentFavorites = getFavoriteRoomIds();
+  if (currentFavorites.length) {
+    appState.activeChatFilter = "favorites";
+    return;
+  }
+
+  const seededFavorites = getDefaultFavoriteRooms(getCurrentUser())
+    .filter((roomId) => Boolean(findChatById(roomId)));
+
+  if (!seededFavorites.length) {
+    appState.activeChatFilter = "all";
+    return;
+  }
+
+  saveFavoriteRoomIds(seededFavorites);
+  appState.activeChatFilter = "favorites";
+
+  if (!findChatById(getLastRoomId())) {
+    saveLastRoomId(seededFavorites[0]);
+  }
+}
+
+function triggerDemoLogin(role) {
+  fillDemoCredentials(role);
+  window.setTimeout(() => {
+    $("loginBtn")?.click();
+  }, 0);
 }
 
 function getFavoritesStorageKey() {
@@ -514,6 +583,9 @@ function getVisibleChats() {
   let chats = appState.allChats;
   if (appState.activeChatFilter === "favorites") {
     chats = chats.filter((chat) => favorites.has(chat.id));
+    if (!chats.length) {
+      chats = appState.allChats;
+    }
   }
 
   if (!search) return chats;
@@ -1095,6 +1167,8 @@ async function applyAccess() {
 
   applyUserProfileToUI(user);
   rebuildChatCatalog();
+  seedFavoriteRoomsIfNeeded();
+  renderAllDynamicPanels();
   setActiveRoom(findChatById(getLastRoomId()) ? getLastRoomId() : "global");
   switchSection(getSectionFromHash(), { updateHash: false });
   startPresenceHeartbeat();
@@ -1518,11 +1592,7 @@ async function initAuthFlow() {
     loginForm.style.display = "block";
     registerForm.style.display = "none";
     verifyForm.style.display = "none";
-    if (uiState.storageMode === "demo") {
-      setInlineMessage(authMessage, "Можно войти обычным аккаунтом или использовать демо-доступ ниже.", "info");
-    } else {
-      setInlineMessage(authMessage, "", "info");
-    }
+    setInlineMessage(authMessage, "Можно войти обычным аккаунтом или сразу открыть готовый демо-сценарий ниже.", "info");
   }
 
   function showRegisterForm() {
@@ -1549,11 +1619,11 @@ async function initAuthFlow() {
   }
 
   if (fillStudentDemoBtn) {
-    fillStudentDemoBtn.addEventListener("click", () => fillDemoCredentials("student"));
+    fillStudentDemoBtn.addEventListener("click", () => triggerDemoLogin("student"));
   }
 
   if (fillAdminDemoBtn) {
-    fillAdminDemoBtn.addEventListener("click", () => fillDemoCredentials("admin"));
+    fillAdminDemoBtn.addEventListener("click", () => triggerDemoLogin("admin"));
   }
 
   if (registerBtn) {

@@ -260,6 +260,30 @@ Admin actions:
 - search and filtering for announcements and events
 - deployment configuration for cloud hosting
 
+## KazNU RAG MVP
+
+This repository now also includes an isolated Python starter kit in [kaznu-rag](c:/projects/github/kaznu-chat/kaznu-chat/kaznu-rag) for building a local KazNU knowledge base over public university sources.
+
+Use it when you want a separate retrieval pipeline for:
+
+- crawling public KazNU websites and PDFs
+- cleaning and chunking extracted text
+- indexing chunks into a local Qdrant database
+- answering questions through FastAPI plus Ollama
+
+Quick entry point:
+
+```powershell
+cd kaznu-rag
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -r requirements.txt
+Copy-Item .env.example .env
+uvicorn app.main:app --reload
+```
+
+Full setup details are documented in [kaznu-rag/README.md](c:/projects/github/kaznu-chat/kaznu-chat/kaznu-rag/README.md).
+
 ## Deploy On Render
 
 This repository now includes a `render.yaml` file for easy deployment on Render.

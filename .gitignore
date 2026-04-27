@@ -15,3 +15,16 @@ test-results/
 .parcel-cache/
 .vscode/
 .idea/
+kaznu-rag/.venv/
+kaznu-rag/data/raw_html/*
+!kaznu-rag/data/raw_html/.gitkeep
+kaznu-rag/data/raw_pdf/*
+!kaznu-rag/data/raw_pdf/.gitkeep
+kaznu-rag/data/cleaned/*
+!kaznu-rag/data/cleaned/.gitkeep
+kaznu-rag/data/chunks/*
+!kaznu-rag/data/chunks/.gitkeep
+kaznu-rag/data/qdrant_db/
+kaznu-rag/.env
+__pycache__/
+*.pyc

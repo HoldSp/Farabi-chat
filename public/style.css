@@ -1575,6 +1575,12 @@ body.dark .topbar {
   margin-bottom: 10px;
 }
 
+.demo-actions .ghost-inline-btn {
+  flex: 1 1 180px;
+  justify-content: center;
+  text-align: center;
+}
+
 .demo-hint {
   font-size: 13px;
   color: var(--navy-2);

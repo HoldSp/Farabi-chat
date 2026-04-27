@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KazNU RAG</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/chat.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">KazNU Knowledge Assistant</div>
+        <h1>Спроси у базы знаний КазНУ</h1>
+        <p>Локальный поиск по публичным источникам КазНУ с ответами через Ollama и указанием источников.</p>
+        <div class="hero-actions">
+          <a class="hero-link" href="/docs">API Docs</a>
+          <button id="clearChatBtn" class="ghost-button" type="button">Очистить диалог</button>
+        </div>
+      </div>
+      <div class="hero-panel">
+        <div class="status-row">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">Проверяю API...</span>
+        </div>
+        <div class="status-label">Рекомендуемые вопросы</div>
+        <div class="prompt-grid" id="promptGrid">
+          <button class="prompt-chip" type="button">Какие факультеты есть в КазНУ?</button>
+          <button class="prompt-chip" type="button">Как подать документы в КазНУ?</button>
+          <button class="prompt-chip" type="button">Как найти преподавателя?</button>
+          <button class="prompt-chip" type="button">Что есть в библиотеке КазНУ?</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="chat-column">
+        <div id="chatFeed" class="chat-feed">
+          <article class="message-card assistant">
+            <div class="message-role">Ассистент</div>
+            <div class="message-body">Задай вопрос о поступлении, факультетах, преподавателях, библиотеке или других публичных сервисах КазНУ.</div>
+          </article>
+        </div>
+
+        <form id="askForm" class="composer">
+          <label class="composer-label" for="questionInput">Твой вопрос</label>
+          <div class="composer-row">
+            <textarea id="questionInput" rows="3" placeholder="Например: Какие факультеты есть в КазНУ и где посмотреть преподавателей?" required></textarea>
+            <button id="submitBtn" class="submit-button" type="submit">Спросить</button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="side-column">
+        <section class="info-card">
+          <div class="card-title">Как это работает</div>
+          <p>Интерфейс обращается к локальному `/ask`, который ищет релевантные фрагменты в индексе КазНУ и генерирует ответ через Ollama.</p>
+        </section>
+
+        <section class="info-card">
+          <div class="card-title">Источники ответа</div>
+          <div id="sourcesState" class="sources-empty">Источники появятся после первого вопроса.</div>
+          <ul id="sourcesList" class="sources-list"></ul>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script src="/static/chat.js"></script>
+</body>
+</html>

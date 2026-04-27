@@ -25,15 +25,15 @@
 
         <div id="demoCredentials" class="demo-panel" hidden>
           <div class="demo-panel-copy">
-            <strong>Демо-режим активен</strong>
-            <span>База данных сейчас недоступна, поэтому приложение работает на локальном демо-хранилище.</span>
+            <strong id="demoPanelTitle">Быстрый вход для демо</strong>
+            <span id="demoPanelDescription">Открой готовый студенческий или админский сценарий одним кликом.</span>
           </div>
           <div class="demo-actions">
-            <button id="fillStudentDemoBtn" class="ghost-inline-btn" type="button">Заполнить студента</button>
-            <button id="fillAdminDemoBtn" class="ghost-inline-btn" type="button">Заполнить админа</button>
+            <button id="fillStudentDemoBtn" class="ghost-inline-btn" type="button">Войти как студент</button>
+            <button id="fillAdminDemoBtn" class="ghost-inline-btn" type="button">Войти как админ</button>
           </div>
-          <div class="demo-hint">Студент: serik_alikhan@live.kaznu.kz / student123</div>
-          <div class="demo-hint">Админ: turlybek_baiken@live.kaznu.kz / admin123</div>
+          <div id="demoStudentHint" class="demo-hint">Студент: serik_alikhan@live.kaznu.kz / student123</div>
+          <div id="demoAdminHint" class="demo-hint">Админ: turlybek_baiken@live.kaznu.kz / admin123</div>
         </div>
 
         <div id="loginForm" class="auth-form">

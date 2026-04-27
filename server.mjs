@@ -41,6 +41,134 @@ app.use(express.static(publicPath));
 app.use(express.json());
 
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/kaznu-chat";
+const DEMO_EVENTS = [
+  {
+    title: "Ярмарка студенческих клубов",
+    description: "Познакомься с клубами, сообществами и инициативами КазНУ.",
+    date: "22 марта • 14:00",
+    place: "Главный корпус",
+    faculty: "Все факультеты",
+    tags: ["Клубы", "Студенты", "Нетворкинг"]
+  },
+  {
+    title: "Workshop по публичным выступлениям",
+    description: "Практическая сессия по ораторскому мастерству и уверенной подаче.",
+    date: "24 марта • 15:30",
+    place: "Конференц-зал",
+    faculty: "Все факультеты",
+    tags: ["Навыки", "Выступления"]
+  },
+  {
+    title: "Встреча по студенческим стартапам",
+    description: "Обсуждение идей приложений, MVP и первых шагов в запуске проекта.",
+    date: "27 марта • 17:00",
+    place: "Coworking zone",
+    faculty: "Факультет информационных технологий",
+    tags: ["Стартап", "AI", "Разработка"]
+  }
+];
+
+const DEMO_ANNOUNCEMENTS = [
+  {
+    title: "Открыта регистрация на день карьеры",
+    text: "Студенты могут зарегистрироваться до пятницы. Участие бесплатное.",
+    meta: "Карьера • Сегодня"
+  },
+  {
+    title: "Лекция по международному праву",
+    text: "Приглашённый эксперт выступит в актовом зале в 16:00.",
+    meta: "ФМО • Завтра"
+  },
+  {
+    title: "Приём заявок в студенческие клубы",
+    text: "Открыт набор в студенческие объединения и клубы кампуса.",
+    meta: "Студсовет • Эта неделя"
+  }
+];
+
+const DEMO_USERS = [
+  {
+    firstName: "Turlybek",
+    lastName: "Baiken",
+    displayName: "Farabi Admin",
+    bio: "Куратор платформы. Публикую объявления, модерирую чаты и собираю демо-сценарии.",
+    email: "turlybek_baiken@live.kaznu.kz",
+    password: "admin123",
+    faculty: "Факультет информационных технологий",
+    specialty: "Программная инженерия",
+    course: 4,
+    role: "admin"
+  },
+  {
+    firstName: "Alikhan",
+    lastName: "Serik",
+    displayName: "Алихан Серик",
+    bio: "Студент ФМО. Помогаю с мероприятиями, дедлайнами и студенческими активностями.",
+    email: "serik_alikhan@live.kaznu.kz",
+    password: "student123",
+    faculty: "Международные отношения (ФМО)",
+    specialty: "Международные отношения",
+    course: 2,
+    role: "student"
+  },
+  {
+    firstName: "Dana",
+    lastName: "Kaliyeva",
+    displayName: "Dana K.",
+    bio: "Студентка IT. Люблю хакатоны, продуктовые встречи и AI-проекты.",
+    email: "kaliyeva_dana@live.kaznu.kz",
+    password: "student123",
+    faculty: "Факультет информационных технологий",
+    specialty: "Data Science",
+    course: 3,
+    role: "student"
+  }
+];
+
+const DEMO_MESSAGES = [
+  {
+    username: "Farabi Admin",
+    text: "Добро пожаловать в Farabi Chat. Здесь собраны важные комнаты по факультетам, событиям и жизни кампуса.",
+    time: "09:10",
+    room: "global"
+  },
+  {
+    username: "Алихан Серик",
+    text: "Кто идёт на ярмарку клубов? Могу потом скинуть короткий обзор по самым активным стендам.",
+    time: "09:12",
+    room: "global"
+  },
+  {
+    username: "Dana K.",
+    text: "В IT-комьюнити в четверг обсуждаем AI-проекты и стажировки. Можно заглянуть даже без команды.",
+    time: "09:15",
+    room: "global"
+  },
+  {
+    username: "Farabi Admin",
+    text: "В этой комнате собираем кампусные события недели. Добавляйте полезные встречи и лекции.",
+    time: "10:00",
+    room: "general:events"
+  },
+  {
+    username: "Алихан Серик",
+    text: "Я добавил в события карьерный день и лекцию по международному праву. Оба пункта уже в ленте.",
+    time: "10:04",
+    room: "general:events"
+  },
+  {
+    username: "Dana K.",
+    text: "Для Data Science можно закрепить комнаты по факультету и по учебе. Так удобнее переключаться во время сессии.",
+    time: "10:20",
+    room: "faculty:Факультет информационных технологий"
+  },
+  {
+    username: "Алихан Серик",
+    text: "ФМО, напомню: завтра открытая лекция и встреча по академической мобильности. Если нужен конспект, напишите сюда.",
+    time: "10:35",
+    room: "faculty:Международные отношения (ФМО)"
+  }
+];
 const PORT = process.env.PORT || 3001;
 const MAIL_USER = process.env.MAIL_USER;
 const MAIL_PASS = process.env.MAIL_PASS;
@@ -369,115 +497,60 @@ function sortByCreatedAsc(items) {
 async function seedDemoFallbackData() {
   if (demoStore.events.length === 0) {
     const now = new Date().toISOString();
-    demoStore.events.push(
-      {
-        id: createDemoId(),
-        title: "Ярмарка студенческих клубов",
-        description: "Познакомься с клубами, сообществами и инициативами КазНУ.",
-        date: "22 марта • 14:00",
-        place: "Главный корпус",
-        faculty: "Все факультеты",
-        tags: ["Клубы", "Студенты", "Нетворкинг"],
-        createdAt: now,
-        updatedAt: now
-      },
-      {
-        id: createDemoId(),
-        title: "Workshop по публичным выступлениям",
-        description: "Практическая сессия по ораторскому мастерству и уверенной подаче.",
-        date: "24 марта • 15:30",
-        place: "Конференц-зал",
-        faculty: "Все факультеты",
-        tags: ["Навыки", "Выступления"],
-        createdAt: now,
-        updatedAt: now
-      },
-      {
-        id: createDemoId(),
-        title: "Встреча по студенческим стартапам",
-        description: "Обсуждение идей приложений, MVP и первых шагов в запуске проекта.",
-        date: "27 марта • 17:00",
-        place: "Coworking zone",
-        faculty: "IT / CS",
-        tags: ["Стартап", "AI", "Разработка"],
-        createdAt: now,
-        updatedAt: now
-      }
-    );
+    demoStore.events.push(...DEMO_EVENTS.map((event) => ({
+      id: createDemoId(),
+      ...event,
+      createdAt: now,
+      updatedAt: now
+    })));
   }
 
   if (demoStore.announcements.length === 0) {
     const now = new Date().toISOString();
-    demoStore.announcements.push(
-      {
-        id: createDemoId(),
-        title: "Открыта регистрация на день карьеры",
-        text: "Студенты могут зарегистрироваться до пятницы. Участие бесплатное.",
-        meta: "Карьера • Сегодня",
-        createdAt: now,
-        updatedAt: now
-      },
-      {
-        id: createDemoId(),
-        title: "Лекция по международному праву",
-        text: "Приглашённый эксперт выступит в актовом зале в 16:00.",
-        meta: "ФМО • Завтра",
-        createdAt: now,
-        updatedAt: now
-      },
-      {
-        id: createDemoId(),
-        title: "Приём заявок в студенческие клубы",
-        text: "Открыт набор в студенческие объединения и клубы кампуса.",
-        meta: "Студсовет • Эта неделя",
-        createdAt: now,
-        updatedAt: now
-      }
-    );
+    demoStore.announcements.push(...DEMO_ANNOUNCEMENTS.map((announcement) => ({
+      id: createDemoId(),
+      ...announcement,
+      createdAt: now,
+      updatedAt: now
+    })));
   }
 
   if (demoStore.users.length === 0) {
     const now = new Date().toISOString();
-    demoStore.users.push(
-      {
+    for (const user of DEMO_USERS) {
+      demoStore.users.push({
         id: createDemoId(),
-        firstName: "Baiken",
-        lastName: "Turlybek",
-        displayName: "Farabi Admin",
-        bio: "Куратор платформы и администратор демо-режима.",
-        email: "turlybek_baiken@live.kaznu.kz",
-        password: await hashPlaintextPassword("admin123"),
-        faculty: "Факультет информационных технологий",
-        specialty: "Программная инженерия",
-        course: 4,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        displayName: user.displayName,
+        bio: user.bio,
+        email: user.email,
+        password: await hashPlaintextPassword(user.password),
+        faculty: user.faculty,
+        specialty: user.specialty,
+        course: user.course,
         isEmailVerified: true,
         verificationCode: null,
         verificationExpires: null,
-        role: "admin",
+        role: user.role,
         lastSeen: new Date(),
         createdAt: now,
         updatedAt: now
-      },
-      {
+      });
+    }
+  }
+
+  if (demoStore.messages.length === 0) {
+    const baseTime = Date.now() - DEMO_MESSAGES.length * 60_000;
+    demoStore.messages.push(...DEMO_MESSAGES.map((message, index) => {
+      const createdAt = new Date(baseTime + index * 60_000).toISOString();
+      return {
         id: createDemoId(),
-        firstName: "Alikhan",
-        lastName: "Serik",
-        displayName: "Алихан",
-        bio: "Студент, который тестирует новые комнаты и события.",
-        email: "serik_alikhan@live.kaznu.kz",
-        password: await hashPlaintextPassword("student123"),
-        faculty: "Международные отношения (ФМО)",
-        specialty: "Международные отношения",
-        course: 2,
-        isEmailVerified: true,
-        verificationCode: null,
-        verificationExpires: null,
-        role: "student",
-        lastSeen: new Date(),
-        createdAt: now,
-        updatedAt: now
-      }
-    );
+        ...message,
+        createdAt,
+        updatedAt: createdAt
+      };
+    }));
   }
 }
 
@@ -487,57 +560,56 @@ async function seedDemoData() {
   try {
     const eventsCount = await Event.countDocuments();
     if (eventsCount === 0) {
-      await Event.insertMany([
-        {
-          title: "Ярмарка студенческих клубов",
-          description: "Познакомься с клубами, сообществами и инициативами КазНУ.",
-          date: "22 марта • 14:00",
-          place: "Главный корпус",
-          faculty: "Все факультеты",
-          tags: ["Клубы", "Студенты", "Нетворкинг"],
-        },
-        {
-          title: "Workshop по публичным выступлениям",
-          description:
-            "Практическая сессия по ораторскому мастерству и уверенной подаче.",
-          date: "24 марта • 15:30",
-          place: "Конференц-зал",
-          faculty: "Все факультеты",
-          tags: ["Навыки", "Выступления"],
-        },
-        {
-          title: "Встреча по студенческим стартапам",
-          description:
-            "Обсуждение идей приложений, MVP и первых шагов в запуске проекта.",
-          date: "27 марта • 17:00",
-          place: "Coworking zone",
-          faculty: "IT / CS",
-          tags: ["Стартап", "AI", "Разработка"],
-        },
-      ]);
+      await Event.insertMany(DEMO_EVENTS);
       console.log("Демо-мероприятия добавлены");
     }
 
     const announcementsCount = await Announcement.countDocuments();
     if (announcementsCount === 0) {
-      await Announcement.insertMany([
-        {
-          title: "Открыта регистрация на день карьеры",
-          text: "Студенты могут зарегистрироваться до пятницы. Участие бесплатное.",
-          meta: "Карьера • Сегодня",
-        },
-        {
-          title: "Лекция по международному праву",
-          text: "Приглашённый эксперт выступит в актовом зале в 16:00.",
-          meta: "ФМО • Завтра",
-        },
-        {
-          title: "Приём заявок в студенческие клубы",
-          text: "Открыт набор в студенческие объединения и клубы кампуса.",
-          meta: "Студсовет • Эта неделя",
-        },
-      ]);
+      await Announcement.insertMany(DEMO_ANNOUNCEMENTS);
       console.log("Демо-объявления добавлены");
+    }
+
+    for (const user of DEMO_USERS) {
+      const existingUser = await User.findOne({ email: user.email });
+      if (existingUser) {
+        if (!existingUser.isEmailVerified) {
+          existingUser.isEmailVerified = true;
+          existingUser.verificationCode = null;
+          existingUser.verificationExpires = null;
+          existingUser.role = user.role;
+          existingUser.displayName = existingUser.displayName || user.displayName;
+          existingUser.bio = existingUser.bio || user.bio;
+          existingUser.faculty = existingUser.faculty || user.faculty;
+          existingUser.specialty = existingUser.specialty || user.specialty;
+          existingUser.course = existingUser.course || user.course;
+          await existingUser.save();
+        }
+        continue;
+      }
+
+      await User.create({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        displayName: user.displayName,
+        bio: user.bio,
+        email: user.email,
+        password: user.password,
+        faculty: user.faculty,
+        specialty: user.specialty,
+        course: user.course,
+        isEmailVerified: true,
+        verificationCode: null,
+        verificationExpires: null,
+        role: user.role,
+        lastSeen: new Date()
+      });
+    }
+
+    const messagesCount = await Message.countDocuments();
+    if (messagesCount === 0) {
+      await Message.insertMany(DEMO_MESSAGES);
+      console.log("Демо-сообщения добавлены");
     }
   } catch (err) {
     console.error("Ошибка seed demo data:", err.message);
