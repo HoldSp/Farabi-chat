@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,132 +10,29 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
   <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+  <button id="languageToggle" class="language-toggle" type="button" aria-label="Switch language">RU / EN</button>
 
   <div id="authScreen" class="auth-screen">
-    <div class="auth-shell">
+    <div class="auth-shell auth-shell-simple">
       <div class="auth-card">
-        <div class="auth-badge">Студенческая платформа КазНУ</div>
+        <div class="auth-badge" data-i18n="auth.badge">KazNU Student Platform</div>
         <h1>Farabi Chat</h1>
-        <p class="auth-lead">Единое пространство для чатов, объявлений, событий кампуса и студенческого нетворкинга.</p>
-        <div id="authStatusBadge" class="mode-chip" hidden></div>
+        <p class="auth-lead" data-i18n="auth.lead">One place for campus chat, announcements, events, and student networking.</p>
         <div id="authMessage" class="inline-banner" role="status" hidden></div>
-
-        <div id="demoCredentials" class="demo-panel" hidden>
-          <div class="demo-panel-copy">
-            <strong id="demoPanelTitle">Быстрый вход для демо</strong>
-            <span id="demoPanelDescription">Открой готовый студенческий или админский сценарий одним кликом.</span>
-          </div>
-          <div class="demo-actions">
-            <button id="fillStudentDemoBtn" class="ghost-inline-btn" type="button">Войти как студент</button>
-            <button id="fillAdminDemoBtn" class="ghost-inline-btn" type="button">Войти как админ</button>
-          </div>
-          <div id="demoStudentHint" class="demo-hint">Студент: serik_alikhan@live.kaznu.kz / student123</div>
-          <div id="demoAdminHint" class="demo-hint">Админ: turlybek_baiken@live.kaznu.kz / admin123</div>
-        </div>
 
         <div id="loginForm" class="auth-form">
           <div class="profile-form">
             <label class="field">
-              <span class="field-label">Студенческая почта</span>
-              <input id="loginEmail" type="email" placeholder="student@live.kaznu.kz" autocomplete="email" />
+              <span class="field-label" data-i18n="auth.emailLabel">Student email</span>
+              <input id="loginEmail" type="email" placeholder="student@live.kaznu.kz" autocomplete="email" data-i18n-placeholder="auth.emailPlaceholder" />
             </label>
             <label class="field">
-              <span class="field-label">Пароль</span>
-              <input id="loginPassword" type="password" placeholder="Минимум 6 символов" autocomplete="current-password" />
+              <span class="field-label" data-i18n="auth.passwordLabel">Password</span>
+              <input id="loginPassword" type="password" placeholder="Minimum 6 characters" autocomplete="current-password" data-i18n-placeholder="auth.passwordPlaceholder" />
             </label>
-            <button id="loginBtn" class="save-btn" type="button">Войти</button>
-          </div>
-
-          <div class="auth-switch">
-            Нет аккаунта?
-            <button id="goToRegister" class="text-button" type="button">Регистрация</button>
-          </div>
-        </div>
-
-        <div id="registerForm" class="auth-form" style="display:none;">
-          <div class="profile-form">
-            <label class="field">
-              <span class="field-label">Отображаемое имя</span>
-              <input id="regNickname" type="text" placeholder="Например, Алихан" autocomplete="nickname" />
-            </label>
-            <label class="field">
-              <span class="field-label">Студенческая почта</span>
-              <input id="regEmail" type="email" placeholder="student@live.kaznu.kz" autocomplete="email" />
-            </label>
-            <label class="field">
-              <span class="field-label">Пароль</span>
-              <input id="regPassword" type="password" placeholder="Минимум 6 символов" autocomplete="new-password" />
-            </label>
-            <label class="field">
-              <span class="field-label">Факультет</span>
-              <select id="regFaculty"></select>
-            </label>
-            <label class="field">
-              <span class="field-label">Специальность</span>
-              <select id="regSpecialty"></select>
-            </label>
-            <label class="field">
-              <span class="field-label">Курс</span>
-              <select id="regCourse">
-                <option value="">Выберите курс</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-              </select>
-            </label>
-            <button id="registerBtn" class="save-btn" type="button">Создать аккаунт</button>
-          </div>
-
-          <div class="auth-switch">
-            Уже есть аккаунт?
-            <button id="goToLogin" class="text-button" type="button">Войти</button>
-          </div>
-        </div>
-
-        <div id="verifyForm" class="auth-form" style="display:none;">
-          <p class="auth-verify-copy">Мы отправили код подтверждения на студенческую почту. В демо-режиме код также выводится в серверный лог.</p>
-
-          <div class="profile-form">
-            <label class="field">
-              <span class="field-label">Студенческая почта</span>
-              <input id="verifyEmail" type="email" placeholder="student@live.kaznu.kz" autocomplete="email" />
-            </label>
-            <label class="field">
-              <span class="field-label">Код подтверждения</span>
-              <input id="verifyCode" type="text" placeholder="6-значный код" inputmode="numeric" />
-            </label>
-            <button id="verifyBtn" class="save-btn" type="button">Подтвердить почту</button>
-          </div>
-
-          <div class="auth-switch">
-            Уже есть аккаунт?
-            <button id="backToLoginFromVerify" class="text-button" type="button">Войти</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="auth-side-panel">
-        <div class="auth-side-card auth-side-card-accent">
-          <div class="eyebrow">Почему это удобно</div>
-          <h2>Чаты, события и объявления в одном месте</h2>
-          <p>Farabi Chat помогает студентам быстрее находить нужные комнаты, видеть актуальные кампусные события и поддерживать живой профиль внутри сообщества.</p>
-        </div>
-        <div class="auth-side-card">
-          <div class="auth-side-stat">
-            <span>Каталог комнат</span>
-            <strong>Факультеты, специальности и общежития</strong>
-          </div>
-          <div class="auth-side-stat">
-            <span>Сценарии</span>
-            <strong>Студент и администратор</strong>
-          </div>
-          <div class="auth-side-stat">
-            <span>Доступ</span>
-            <strong>Только через @live.kaznu.kz</strong>
+            <button id="loginBtn" class="save-btn" type="button" data-i18n="auth.signIn">Sign in</button>
           </div>
         </div>
       </div>
@@ -144,7 +41,7 @@
 
   <div id="appShell" style="display:none;">
     <button id="themeToggle" class="theme-toggle" type="button">🌙</button>
-    <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Открыть меню">☰</button>
+    <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Open menu">☰</button>
     <div id="sidebarOverlay" class="sidebar-overlay"></div>
 
     <div class="app">
@@ -159,32 +56,33 @@
               </div>
             </div>
             <div class="sidebar-topbar-actions">
-              <button class="ghost-btn danger logout-btn logout-btn-top" id="logoutBtn" type="button" aria-label="Выйти">↩</button>
-              <button id="sidebarClose" class="sidebar-close" type="button" aria-label="Закрыть меню">✕</button>
+              <button class="ghost-btn danger logout-btn logout-btn-top" id="logoutBtn" type="button" aria-label="Sign out">↩</button>
+              <button id="sidebarClose" class="sidebar-close" type="button" aria-label="Close menu">✕</button>
             </div>
           </div>
 
           <div class="profile-card">
             <div class="profile-avatar" id="sidebarAvatar">A</div>
-            <div class="profile-name" id="sidebarName">Аноним</div>
+            <div class="profile-name" id="sidebarName">Anonymous</div>
             <div class="profile-email" id="sidebarEmail">student@live.kaznu.kz</div>
             <div class="profile-meta">
-              <div><span class="online-dot"></span>онлайн</div>
-              <div id="sidebarFaculty">Факультет не выбран</div>
-              <div id="sidebarSpecialty">Специальность не выбрана</div>
-              <div id="sidebarCourse">Курс не выбран</div>
-              <div id="sidebarDerivedName">Настоящее имя не определено</div>
+              <div><span class="online-dot"></span><span data-i18n="sidebar.online">online</span></div>
+              <div id="sidebarFaculty">Faculty: not selected</div>
+              <div id="sidebarSpecialty">Specialty: not selected</div>
+              <div id="sidebarCourse">Course: not selected</div>
+              <div id="sidebarDerivedName">Legal name: unavailable</div>
             </div>
           </div>
 
-          <div class="menu-title">Главное меню</div>
+          <div class="menu-title" data-i18n="sidebar.menu">Main menu</div>
           <div class="nav">
-            <button class="nav-btn active" data-section="dashboard" type="button">Главная</button>
-            <button class="nav-btn" data-section="chat" type="button">Чаты</button>
-            <button class="nav-btn" data-section="announcements" type="button">Объявления</button>
-            <button class="nav-btn" data-section="events" type="button">События</button>
-            <button class="nav-btn" data-section="profile" type="button">Профиль</button>
-            <button class="nav-btn admin-only" data-section="admin" type="button">Админ</button>
+            <button class="nav-btn active" data-section="dashboard" type="button" data-i18n="nav.dashboard">Home</button>
+            <button class="nav-btn" data-section="chat" type="button" data-i18n="nav.chat">Chats</button>
+            <button class="nav-btn" data-section="ai" type="button" data-i18n="nav.ai">AI Chat</button>
+            <button class="nav-btn" data-section="announcements" type="button" data-i18n="nav.announcements">Announcements</button>
+            <button class="nav-btn" data-section="events" type="button" data-i18n="nav.events">Events</button>
+            <button class="nav-btn" data-section="profile" type="button" data-i18n="nav.profile">Profile</button>
+            <button class="nav-btn admin-only" data-section="admin" type="button" data-i18n="nav.admin">Admin</button>
           </div>
         </div>
       </aside>
@@ -192,12 +90,12 @@
       <main class="content">
         <div class="topbar">
           <div>
-            <h1 id="pageTitle">Главная</h1>
+            <h1 id="pageTitle">Home</h1>
             <p id="pageSubtitle"></p>
           </div>
           <div class="top-actions">
-            <div class="chip" id="topbarRole">Студент</div>
-            <div class="chip chip-muted" id="platformStatusChip">Подключение...</div>
+            <div class="chip" id="topbarRole">Student</div>
+            <div class="chip chip-muted" id="platformStatusChip">Connecting...</div>
           </div>
         </div>
 
@@ -210,19 +108,19 @@
                 <div class="hero-copy">
                   <div class="eyebrow">Student hub</div>
                   <div class="section-title">Farabi Chat</div>
-                  <div class="section-subtitle">Университетское пространство для общения, координации и быстрых студенческих обновлений.</div>
+                  <div class="section-subtitle" data-i18n="dashboard.heroSubtitle">A university workspace for conversations, coordination, and fast student updates.</div>
                   <div class="hero-actions">
-                    <button id="heroOpenChatsBtn" class="save-btn" type="button">Перейти в чаты</button>
-                    <button id="heroOpenProfileBtn" class="ghost-light-btn" type="button">Открыть профиль</button>
+                    <button id="heroOpenChatsBtn" class="save-btn" type="button" data-i18n="dashboard.openChats">Open chats</button>
+                    <button id="heroOpenProfileBtn" class="ghost-light-btn" type="button" data-i18n="dashboard.openProfile">Open profile</button>
                   </div>
                 </div>
                 <div class="hero-side">
                   <div class="hero-kpi">
-                    <span>Профиль</span>
-                    <strong id="heroPrimaryContext">Факультет и специальность будут здесь</strong>
+                    <span data-i18n="dashboard.profileLabel">Profile</span>
+                    <strong id="heroPrimaryContext">Faculty and specialty will appear here</strong>
                   </div>
                   <div class="hero-kpi">
-                    <span>Избранное</span>
+                    <span data-i18n="dashboard.favoritesLabel">Favorites</span>
                     <strong id="favoriteCount">0</strong>
                   </div>
                 </div>
@@ -230,30 +128,30 @@
 
               <div class="cards-grid cards-grid-compact">
                 <div class="stat-card">
-                  <div class="label">Комнат в каталоге</div>
+                  <div class="label" data-i18n="dashboard.roomsCount">Rooms in catalog</div>
                   <div class="value" id="totalChatsCount">0</div>
                 </div>
                 <div class="stat-card">
-                  <div class="label">Избранные</div>
+                  <div class="label" data-i18n="dashboard.favoritesLabel">Favorites</div>
                   <div class="value" id="dashboardFavoriteCount">0</div>
                 </div>
                 <div class="stat-card">
-                  <div class="label">События</div>
+                  <div class="label" data-i18n="dashboard.eventsCount">Events</div>
                   <div class="value" id="eventsCount">0</div>
                 </div>
               </div>
 
               <div class="insight-grid">
                 <div class="insight-card">
-                  <div class="insight-label">Подтверждённые студенты</div>
+                  <div class="insight-label" data-i18n="dashboard.verifiedStudents">Verified students</div>
                   <div class="insight-value" id="totalUsersCount">0</div>
                 </div>
                 <div class="insight-card">
-                  <div class="insight-label">Сейчас онлайн</div>
+                  <div class="insight-label" data-i18n="dashboard.onlineNow">Online now</div>
                   <div class="insight-value" id="onlineUsersCount">0</div>
                 </div>
                 <div class="insight-card">
-                  <div class="insight-label">Режим хранения</div>
+                  <div class="insight-label" data-i18n="dashboard.storageMode">Storage mode</div>
                   <div class="insight-value insight-value-small" id="storageModeLabel">...</div>
                 </div>
               </div>
@@ -263,10 +161,10 @@
                   <div class="section-card">
                     <div class="section-card-heading">
                       <div>
-                        <h3>Рекомендуемые комнаты</h3>
-                        <div class="muted">Быстрый вход в самые полезные чаты для вашего факультета и курса.</div>
+                        <h3 data-i18n="dashboard.recommendedRooms">Recommended rooms</h3>
+                        <div class="muted" data-i18n="dashboard.recommendedHint">Quick access to the most useful chats for your faculty and course.</div>
                       </div>
-                      <button id="dashboardBrowseChatsBtn" class="ghost-inline-btn" type="button">Открыть каталог</button>
+                      <button id="dashboardBrowseChatsBtn" class="ghost-inline-btn" type="button" data-i18n="dashboard.openCatalog">Open catalog</button>
                     </div>
                     <div class="recommendation-list" id="dashboardRecommendedChats"></div>
                   </div>
@@ -276,8 +174,8 @@
                   <div class="section-card">
                     <div class="section-card-heading">
                       <div>
-                        <h3>Избранные комнаты</h3>
-                        <div class="muted">Закрепите нужные чаты, чтобы возвращаться к ним в один клик.</div>
+                        <h3 data-i18n="dashboard.favoriteRooms">Favorite rooms</h3>
+                        <div class="muted" data-i18n="dashboard.favoriteHint">Pin the chats you need most and come back to them in one click.</div>
                       </div>
                     </div>
                     <div class="favorite-preview-list" id="dashboardFavoriteChats"></div>
@@ -292,42 +190,38 @@
               <div class="chat-rooms">
                 <div class="chat-room-header">
                   <div>
-                    <div class="chat-room-title">Каталог чатов</div>
-                    <div class="chat-room-caption">Факультеты, специальности, общежития и общие комнаты</div>
+                    <div class="chat-room-title" data-i18n="chat.catalogTitle">Chat catalog</div>
+                    <div class="chat-room-caption" data-i18n="chat.catalogCaption">Faculties, specialties, dormitories, and shared rooms</div>
                   </div>
                 </div>
 
                 <div class="chat-search-box">
-                  <input id="chatSearchInput" type="search" placeholder="Поиск по чатам" />
+                  <input id="chatSearchInput" type="search" placeholder="Search chats" data-i18n-placeholder="chat.searchPlaceholder" />
                 </div>
 
                 <div class="chat-filter-tabs">
-                  <button id="favoritesTabBtn" class="filter-tab active" data-chat-filter="favorites" type="button">Избранные</button>
-                  <button id="allChatsTabBtn" class="filter-tab" data-chat-filter="all" type="button">Все чаты</button>
+                  <button id="favoritesTabBtn" class="filter-tab active" data-chat-filter="favorites" type="button" data-i18n="chat.favoritesTab">Favorites</button>
+                  <button id="allChatsTabBtn" class="filter-tab" data-chat-filter="all" type="button" data-i18n="chat.allTab">All chats</button>
                 </div>
 
                 <div id="recommendedChatChips" class="chat-suggestions"></div>
-
                 <div class="room-list" id="roomList"></div>
-
-                <div id="emptyChatState" class="empty-chat-state" style="display:none;">
-                  Чаты не найдены. Попробуйте изменить поиск или откройте вкладку «Все чаты».
-                </div>
+                <div id="emptyChatState" class="empty-chat-state" style="display:none;">No chats matched your search. Try a different query or switch to All chats.</div>
               </div>
 
               <div class="chat-panel">
                 <div class="chat-header">
                   <div>
-                    <h2 id="chatRoomTitle">Общий чат</h2>
-                    <p id="chatRoomSubtitle">Обсуждение для всех студентов КазНУ</p>
+                    <h2 id="chatRoomTitle">General chat</h2>
+                    <p id="chatRoomSubtitle">A shared room for all KazNU students</p>
                     <div class="chat-room-meta" id="chatRoomMeta"></div>
                   </div>
 
                   <div class="chat-controls">
-                    <input id="username" placeholder="Ваше имя" readonly />
-                    <button id="favoriteRoomBtn" class="favorite-room-btn" type="button">☆ В избранное</button>
+                    <input id="username" placeholder="Your name" readonly data-i18n-placeholder="chat.usernamePlaceholder" />
+                    <button id="favoriteRoomBtn" class="favorite-room-btn" type="button">☆ Add to favorites</button>
                     <select id="room" style="display:none;">
-                      <option value="global">Общий чат</option>
+                      <option value="global">General chat</option>
                     </select>
                   </div>
                 </div>
@@ -335,8 +229,36 @@
                 <div id="messages" class="messages"></div>
 
                 <div class="input-area">
-                  <input id="messageInput" placeholder="Введите сообщение..." />
-                  <button id="sendBtn" type="button">Отправить</button>
+                  <input id="messageInput" placeholder="Write a message..." data-i18n-placeholder="chat.messagePlaceholder" />
+                  <button id="sendBtn" type="button" data-i18n="chat.send">Send</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section" id="section-ai">
+            <div class="section-scroll">
+              <div class="section-card-heading section-card-heading-loose">
+                <div>
+                  <div class="section-title" data-i18n="ai.title">AI Chat</div>
+                  <div class="section-subtitle" data-i18n="ai.subtitle">Our KazNU knowledge assistant, available directly inside the platform.</div>
+                </div>
+              </div>
+
+              <div class="ai-layout">
+                <div class="section-card ai-card">
+                  <div class="eyebrow" data-i18n="ai.eyebrow">KazNU Knowledge Assistant</div>
+                  <h3 data-i18n="ai.heading">Ask our AI assistant</h3>
+                  <p class="muted" data-i18n="ai.body">The assistant searches KazNU public sources and answers questions about faculties, admissions, services, and campus information.</p>
+                  <div id="aiAssistantStatus" class="inline-banner inline-banner-page">Connecting to the AI workspace...</div>
+                  <div class="ai-action-row">
+                    <a id="openAiAssistantBtn" class="save-btn ai-link-btn" href="#" target="_blank" rel="noreferrer" data-i18n="ai.openAssistant">Open AI workspace</a>
+                    <a id="openAiDocsBtn" class="ghost-inline-btn ai-link-btn" href="#" target="_blank" rel="noreferrer" data-i18n="ai.openDocs">Open API docs</a>
+                  </div>
+                </div>
+
+                <div class="section-card ai-frame-shell">
+                  <iframe id="aiAssistantFrame" class="ai-frame" title="KazNU AI assistant"></iframe>
                 </div>
               </div>
             </div>
@@ -346,8 +268,8 @@
             <div class="section-scroll">
               <div class="section-card-heading section-card-heading-loose">
                 <div>
-                  <div class="section-title">Объявления</div>
-                  <div class="section-subtitle">Короткая лента важных академических и кампусных обновлений.</div>
+                  <div class="section-title" data-i18n="announcements.title">Announcements</div>
+                  <div class="section-subtitle" data-i18n="announcements.subtitle">A short feed of important academic and campus updates.</div>
                 </div>
               </div>
               <div class="plain-list" id="announcementsList"></div>
@@ -358,8 +280,8 @@
             <div class="section-scroll">
               <div class="section-card-heading section-card-heading-loose">
                 <div>
-                  <div class="section-title">Мероприятия</div>
-                  <div class="section-subtitle">Встречи, лекции и активности, которые можно быстро добавить в личный план.</div>
+                  <div class="section-title" data-i18n="events.title">Events</div>
+                  <div class="section-subtitle" data-i18n="events.subtitle">Meetups, lectures, and activities you can quickly add to your plan.</div>
                 </div>
               </div>
               <div class="plain-list" id="eventsList"></div>
@@ -368,44 +290,42 @@
 
           <section class="section" id="section-profile">
             <div class="section-scroll">
-              <div class="section-title">Профиль</div>
-              <div class="section-subtitle">
-                Управляйте публичным именем и кратким описанием, не меняя данные верификации.
-              </div>
+              <div class="section-title" data-i18n="profile.title">Profile</div>
+              <div class="section-subtitle" data-i18n="profile.subtitle">Manage your public name and short bio without changing verified account data.</div>
 
               <div class="profile-layout single-column">
                 <div class="section-card profile-main-card">
-                  <h3>Мои данные</h3>
+                  <h3 data-i18n="profile.myData">My details</h3>
                   <div class="profile-form">
                     <label class="field">
-                      <span class="field-label">Отображаемое имя</span>
-                      <input id="editDisplayName" placeholder="Nickname" />
+                      <span class="field-label" data-i18n="profile.displayName">Display name</span>
+                      <input id="editDisplayName" placeholder="Nickname" data-i18n-placeholder="profile.displayNamePlaceholder" />
                     </label>
                     <label class="field">
-                      <span class="field-label">Почта</span>
-                      <input id="editEmail" placeholder="Почта" disabled />
+                      <span class="field-label" data-i18n="profile.email">Email</span>
+                      <input id="editEmail" placeholder="Email" disabled data-i18n-placeholder="profile.email" />
                     </label>
                     <label class="field">
-                      <span class="field-label">Факультет</span>
-                      <input id="editFaculty" placeholder="Факультет" disabled />
+                      <span class="field-label" data-i18n="profile.faculty">Faculty</span>
+                      <input id="editFaculty" placeholder="Faculty" disabled data-i18n-placeholder="profile.faculty" />
                     </label>
                     <label class="field">
-                      <span class="field-label">Специальность</span>
-                      <input id="editSpecialty" placeholder="Специальность" disabled />
+                      <span class="field-label" data-i18n="profile.specialty">Specialty</span>
+                      <input id="editSpecialty" placeholder="Specialty" disabled data-i18n-placeholder="profile.specialty" />
                     </label>
                     <label class="field">
-                      <span class="field-label">Курс</span>
-                      <input id="editCourse" placeholder="Курс" disabled />
+                      <span class="field-label" data-i18n="profile.course">Course</span>
+                      <input id="editCourse" placeholder="Course" disabled data-i18n-placeholder="profile.course" />
                     </label>
                     <label class="field">
-                      <span class="field-label">Настоящее имя</span>
-                      <input id="editRealName" placeholder="Настоящее имя" disabled />
+                      <span class="field-label" data-i18n="profile.realName">Legal name</span>
+                      <input id="editRealName" placeholder="Legal name" disabled data-i18n-placeholder="profile.realName" />
                     </label>
                     <label class="field">
-                      <span class="field-label">О себе</span>
-                      <textarea id="editBio" rows="5" placeholder="Чем вы интересуетесь, в каких проектах участвуете и чем можете быть полезны другим студентам"></textarea>
+                      <span class="field-label" data-i18n="profile.about">About</span>
+                      <textarea id="editBio" rows="5" placeholder="What are you interested in, which projects are you part of, and how can you help other students?" data-i18n-placeholder="profile.aboutPlaceholder"></textarea>
                     </label>
-                    <button class="save-btn" id="saveProfileEditBtn" type="button">Сохранить изменения</button>
+                    <button class="save-btn" id="saveProfileEditBtn" type="button" data-i18n="profile.save">Save changes</button>
                   </div>
                 </div>
               </div>
@@ -414,70 +334,68 @@
 
           <section class="section admin-only" id="section-admin">
             <div class="section-scroll">
-              <div class="section-title">Админ-панель</div>
-              <div class="section-subtitle">
-                Управление правами, мероприятиями и объявлениями.
-              </div>
+              <div class="section-title" data-i18n="admin.title">Admin panel</div>
+              <div class="section-subtitle" data-i18n="admin.subtitle">Manage roles, events, and announcements.</div>
 
               <div class="admin-grid">
                 <div class="section-card">
-                  <h3>Назначить админа</h3>
+                  <h3 data-i18n="admin.assignAdmin">Assign admin role</h3>
                   <div class="profile-form">
                     <label class="field">
-                      <span class="field-label">Почта пользователя</span>
-                      <input id="newAdminEmail" type="email" placeholder="Почта пользователя" />
+                      <span class="field-label" data-i18n="admin.userEmail">User email</span>
+                      <input id="newAdminEmail" type="email" placeholder="User email" data-i18n-placeholder="admin.userEmail" />
                     </label>
-                    <button id="makeAdminBtn" class="save-btn" type="button">Сделать админом</button>
+                    <button id="makeAdminBtn" class="save-btn" type="button" data-i18n="admin.promote">Promote to admin</button>
                   </div>
                 </div>
 
                 <div class="section-card">
-                  <h3>Добавить мероприятие</h3>
+                  <h3 data-i18n="admin.addEvent">Add event</h3>
                   <div class="profile-form">
                     <label class="field">
-                      <span class="field-label">Название</span>
-                      <input id="eventTitle" placeholder="Название" />
+                      <span class="field-label" data-i18n="admin.titleField">Title</span>
+                      <input id="eventTitle" placeholder="Title" data-i18n-placeholder="admin.titleField" />
                     </label>
                     <label class="field">
-                      <span class="field-label">Описание</span>
-                      <input id="eventDescription" placeholder="Описание" />
+                      <span class="field-label" data-i18n="admin.descriptionField">Description</span>
+                      <input id="eventDescription" placeholder="Description" data-i18n-placeholder="admin.descriptionField" />
                     </label>
                     <label class="field">
-                      <span class="field-label">Дата и время</span>
-                      <input id="eventDate" placeholder="Дата и время" />
+                      <span class="field-label" data-i18n="admin.dateField">Date and time</span>
+                      <input id="eventDate" placeholder="Date and time" data-i18n-placeholder="admin.dateField" />
                     </label>
                     <label class="field">
-                      <span class="field-label">Место</span>
-                      <input id="eventPlace" placeholder="Место" />
+                      <span class="field-label" data-i18n="admin.placeField">Place</span>
+                      <input id="eventPlace" placeholder="Place" data-i18n-placeholder="admin.placeField" />
                     </label>
                     <label class="field">
-                      <span class="field-label">Факультет</span>
-                      <input id="eventFaculty" placeholder="Факультет" />
+                      <span class="field-label" data-i18n="admin.facultyField">Faculty</span>
+                      <input id="eventFaculty" placeholder="Faculty" data-i18n-placeholder="admin.facultyField" />
                     </label>
                     <label class="field">
-                      <span class="field-label">Теги</span>
-                      <input id="eventTags" placeholder="Теги через запятую" />
+                      <span class="field-label" data-i18n="admin.tagsField">Tags</span>
+                      <input id="eventTags" placeholder="Comma-separated tags" data-i18n-placeholder="admin.tagsPlaceholder" />
                     </label>
-                    <button class="save-btn" id="addEventBtn" type="button">Добавить событие</button>
+                    <button class="save-btn" id="addEventBtn" type="button" data-i18n="admin.addEventButton">Add event</button>
                   </div>
                 </div>
 
                 <div class="section-card">
-                  <h3>Добавить объявление</h3>
+                  <h3 data-i18n="admin.addAnnouncement">Add announcement</h3>
                   <div class="profile-form">
                     <label class="field">
-                      <span class="field-label">Заголовок</span>
-                      <input id="announcementTitle" placeholder="Заголовок" />
+                      <span class="field-label" data-i18n="admin.headlineField">Headline</span>
+                      <input id="announcementTitle" placeholder="Headline" data-i18n-placeholder="admin.headlineField" />
                     </label>
                     <label class="field">
-                      <span class="field-label">Текст</span>
-                      <textarea id="announcementText" rows="4" placeholder="Текст"></textarea>
+                      <span class="field-label" data-i18n="admin.textField">Text</span>
+                      <textarea id="announcementText" rows="4" placeholder="Text" data-i18n-placeholder="admin.textField"></textarea>
                     </label>
                     <label class="field">
                       <span class="field-label">Meta</span>
-                      <input id="announcementMeta" placeholder="Например: ФМО • Сегодня" />
+                      <input id="announcementMeta" placeholder="For example: Faculty • Today" data-i18n-placeholder="admin.metaPlaceholder" />
                     </label>
-                    <button class="save-btn" id="addAnnouncementBtn" type="button">Добавить объявление</button>
+                    <button class="save-btn" id="addAnnouncementBtn" type="button" data-i18n="admin.addAnnouncementButton">Add announcement</button>
                   </div>
                 </div>
               </div>

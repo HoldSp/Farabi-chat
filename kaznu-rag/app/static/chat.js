@@ -16,7 +16,7 @@ function appendMessage(role, text) {
 
   const roleLabel = document.createElement("div");
   roleLabel.className = "message-role";
-  roleLabel.textContent = role === "user" ? "Ты" : "Ассистент";
+  roleLabel.textContent = role === "user" ? "You" : "Assistant";
 
   const body = document.createElement("div");
   body.className = "message-body";
@@ -30,7 +30,7 @@ function appendMessage(role, text) {
 function renderSources(sources) {
   sourcesList.innerHTML = "";
   if (!sources || !sources.length) {
-    sourcesState.textContent = "Источники не найдены для этого ответа.";
+    sourcesState.textContent = "No sources were found for this answer.";
     sourcesState.classList.remove("hidden");
     sourcesList.classList.add("hidden");
     return;
@@ -57,17 +57,17 @@ async function checkHealth() {
     if (!response.ok) throw new Error("Health check failed");
     const data = await response.json();
     statusDot.className = "status-dot online";
-    statusText.textContent = `API готово, коллекция: ${data.collection}`;
+    statusText.textContent = `API ready, collection: ${data.collection}`;
   } catch (error) {
     statusDot.className = "status-dot offline";
-    statusText.textContent = "API недоступно. Проверь запуск FastAPI и Ollama.";
+    statusText.textContent = "API is unavailable. Check FastAPI and Ollama.";
   }
 }
 
 async function askQuestion(question) {
   appendMessage("user", question);
   submitBtn.disabled = true;
-  submitBtn.textContent = "Ищу ответ...";
+  submitBtn.textContent = "Searching...";
   const payload = {
     question,
     history: chatHistory.slice(-8)
@@ -87,17 +87,17 @@ async function askQuestion(question) {
 
     const data = await response.json();
     chatHistory.push({ role: "user", text: question, sources: [] });
-    chatHistory.push({ role: "assistant", text: data.answer || "Ответ не получен.", sources: data.sources || [] });
-    appendMessage("assistant", data.answer || "Ответ не получен.");
+    chatHistory.push({ role: "assistant", text: data.answer || "No answer was returned.", sources: data.sources || [] });
+    appendMessage("assistant", data.answer || "No answer was returned.");
     renderSources(data.sources || []);
   } catch (error) {
     chatHistory.push({ role: "user", text: question, sources: [] });
-    chatHistory.push({ role: "assistant", text: `Ошибка запроса: ${error.message}`, sources: [] });
-    appendMessage("assistant", `Ошибка запроса: ${error.message}`);
+    chatHistory.push({ role: "assistant", text: `Request error: ${error.message}`, sources: [] });
+    appendMessage("assistant", `Request error: ${error.message}`);
     renderSources([]);
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = "Спросить";
+    submitBtn.textContent = "Ask";
   }
 }
 
@@ -120,7 +120,7 @@ promptGrid.addEventListener("click", async (event) => {
 clearChatBtn.addEventListener("click", () => {
   chatHistory.length = 0;
   chatFeed.innerHTML = "";
-  appendMessage("assistant", "Диалог очищен. Задай новый вопрос по КазНУ.");
+  appendMessage("assistant", "Conversation cleared. Ask a new question about KazNU.");
   renderSources([]);
   questionInput.focus();
 });

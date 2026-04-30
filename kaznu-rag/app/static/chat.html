@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,24 +14,24 @@
     <header class="hero">
       <div class="hero-copy">
         <div class="eyebrow">KazNU Knowledge Assistant</div>
-        <h1>Спроси у базы знаний КазНУ</h1>
-        <p>Локальный поиск по публичным источникам КазНУ с ответами через Ollama и указанием источников.</p>
+        <h1>Ask the KazNU knowledge base</h1>
+        <p>Search public KazNU sources locally and get grounded answers through Ollama with linked sources.</p>
         <div class="hero-actions">
           <a class="hero-link" href="/docs">API Docs</a>
-          <button id="clearChatBtn" class="ghost-button" type="button">Очистить диалог</button>
+          <button id="clearChatBtn" class="ghost-button" type="button">Clear conversation</button>
         </div>
       </div>
       <div class="hero-panel">
         <div class="status-row">
           <span class="status-dot" id="statusDot"></span>
-          <span id="statusText">Проверяю API...</span>
+          <span id="statusText">Checking API...</span>
         </div>
-        <div class="status-label">Рекомендуемые вопросы</div>
+        <div class="status-label">Suggested prompts</div>
         <div class="prompt-grid" id="promptGrid">
-          <button class="prompt-chip" type="button">Какие факультеты есть в КазНУ?</button>
-          <button class="prompt-chip" type="button">Как подать документы в КазНУ?</button>
-          <button class="prompt-chip" type="button">Как найти преподавателя?</button>
-          <button class="prompt-chip" type="button">Что есть в библиотеке КазНУ?</button>
+          <button class="prompt-chip" type="button">Which faculties are available at KazNU?</button>
+          <button class="prompt-chip" type="button">How do I apply to KazNU?</button>
+          <button class="prompt-chip" type="button">How can I find a lecturer?</button>
+          <button class="prompt-chip" type="button">What services does the KazNU library provide?</button>
         </div>
       </div>
     </header>
@@ -40,29 +40,29 @@
       <section class="chat-column">
         <div id="chatFeed" class="chat-feed">
           <article class="message-card assistant">
-            <div class="message-role">Ассистент</div>
-            <div class="message-body">Задай вопрос о поступлении, факультетах, преподавателях, библиотеке или других публичных сервисах КазНУ.</div>
+            <div class="message-role">Assistant</div>
+            <div class="message-body">Ask about admissions, faculties, lecturers, the library, or other public KazNU services.</div>
           </article>
         </div>
 
         <form id="askForm" class="composer">
-          <label class="composer-label" for="questionInput">Твой вопрос</label>
+          <label class="composer-label" for="questionInput">Your question</label>
           <div class="composer-row">
-            <textarea id="questionInput" rows="3" placeholder="Например: Какие факультеты есть в КазНУ и где посмотреть преподавателей?" required></textarea>
-            <button id="submitBtn" class="submit-button" type="submit">Спросить</button>
+            <textarea id="questionInput" rows="3" placeholder="For example: Which faculties are available at KazNU and where can I find lecturers?" required></textarea>
+            <button id="submitBtn" class="submit-button" type="submit">Ask</button>
           </div>
         </form>
       </section>
 
       <aside class="side-column">
         <section class="info-card">
-          <div class="card-title">Как это работает</div>
-          <p>Интерфейс обращается к локальному `/ask`, который ищет релевантные фрагменты в индексе КазНУ и генерирует ответ через Ollama.</p>
+          <div class="card-title">How it works</div>
+          <p>The interface calls the local `/ask` endpoint, which finds relevant KazNU passages and generates an answer through Ollama.</p>
         </section>
 
         <section class="info-card">
-          <div class="card-title">Источники ответа</div>
-          <div id="sourcesState" class="sources-empty">Источники появятся после первого вопроса.</div>
+          <div class="card-title">Answer sources</div>
+          <div id="sourcesState" class="sources-empty">Sources will appear after the first question.</div>
           <ul id="sourcesList" class="sources-list"></ul>
         </section>
       </aside>

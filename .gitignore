@@ -16,6 +16,7 @@ test-results/
 .vscode/
 .idea/
 kaznu-rag/.venv/
+kaznu-rag/.venv312/
 kaznu-rag/data/raw_html/*
 !kaznu-rag/data/raw_html/.gitkeep
 kaznu-rag/data/raw_pdf/*

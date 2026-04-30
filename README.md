@@ -1,119 +1,134 @@
 # Farabi Chat for KazNU
 
-Farabi Chat is a web platform for KazNU students with university email authentication, real-time chat rooms, campus announcements, student events and profile management.
+Farabi Chat is a student communication platform for Al-Farabi Kazakh National University. It combines campus chat, announcements, events, student profiles, and a local AI knowledge assistant in one interface.
+
+## Why This Project Exists
+
+KazNU students usually have to switch between several disconnected channels: group chats, announcements, event posts, faculty information, and separate search tools. That fragmentation creates three problems:
+
+- important campus updates are easy to miss
+- communication is scattered across unrelated platforms
+- students do not have one simple place to ask questions about faculties, admissions, lecturers, library services, or university resources
+
+This project was created to solve that problem with one university-focused web platform.
 
 ## Project Goal
 
-The goal of the project is to create a single digital space for KazNU students where communication, campus information and student interaction are combined in one web application. The platform focuses on a practical university use case: students can register with a university email, join relevant chats, track events and announcements, and manage their own profile inside one interface.
+The goal of Farabi Chat is to provide a single digital hub where a KazNU student can:
 
-## Project Summary
+- sign in with a university identity
+- communicate in topic-based chat rooms
+- view announcements and events
+- manage a profile inside the same system
+- open an integrated AI assistant that answers questions using KazNU public sources
 
-This project was prepared as a university submission and portfolio-ready GitHub repository. The platform combines:
+In short: one platform instead of many disconnected tools.
 
-- student registration with KazNU email verification
-- real-time communication through Socket.IO
-- chat catalogs by faculty, specialty and dormitory
-- announcements and events managed from the same application
-- student profile editing and role-based access for admins
+## What The Project Includes
 
-## University Submission Scope
+- a Node.js web application for the main student platform
+- a FastAPI-based AI assistant workspace for KazNU knowledge search
+- Russian and English interface support
+- simplified login flow for local demo and presentation
+- demo-friendly in-memory fallback when MongoDB is not available
+- end-to-end Playwright coverage for the core user flows
 
-This repository is prepared as a complete submission-ready project for academic review. It includes:
+## Screenshots
 
-- source code for frontend and backend parts
-- environment configuration example
-- documented launch steps
-- documented API surface
-- role-based access logic
-- real-time communication support through Socket.IO
+### Login Screen
 
-## System Architecture
+![Login screen](docs/screenshots/login-page.png)
 
-The application follows a simple client-server architecture.
+### Embedded AI Section Inside The Main App
 
-### Frontend
+![Embedded AI section](docs/screenshots/ai-section.png)
 
-- static UI served from the `public` folder
-- vanilla JavaScript for authentication flow, chat UI, profile editing and admin actions
-- responsive interface with light and dark themes
+### Standalone KazNU AI Workspace
 
-### Backend
-
-- Express server exposes REST endpoints for authentication, profile, events, announcements and moderation
-- Socket.IO handles real-time messaging and room switching
-- Mongoose models store users, messages, events, announcements and pending registrations
-
-### Data Layer
-
-- MongoDB is used as the main persistent storage
-- if MongoDB is unavailable, the server still starts, but database-backed features return empty or limited results
-
-## Core User Scenarios
-
-### Student Flow
-
-1. A student registers with a KazNU email address.
-2. The system generates and sends a verification code.
-3. After verification, the student can sign in.
-4. The student can join chat rooms by faculty, specialty or dormitory.
-5. The student can update profile information and monitor events and announcements.
-
-### Admin Flow
-
-1. An admin signs in with a verified account.
-2. The admin can create events.
-3. The admin can publish announcements.
-4. The admin can assign admin rights to another user.
-5. The admin can delete inappropriate chat messages.
+![Standalone AI workspace](docs/screenshots/ai-workspace.png)
 
 ## Main Features
 
-- Authentication with KazNU student email format `@live.kaznu.kz`
-- Email verification flow with one-time code
-- Real-time chat with room switching and recent history
-- Catalog of chats by faculty, specialty and dormitory
-- Events and announcements feed
-- Profile editing for logged-in users
-- Admin actions for moderation and content management
-- Responsive frontend with light and dark themes
+- KazNU-focused student platform with a clean login screen
+- chat rooms grouped by faculty, specialty, and university life categories
+- announcements and events in the same interface
+- student profile management
+- admin tools for content management
+- RU / EN language toggle
+- integrated AI Chat section inside the main platform
+- standalone AI assistant page with source-grounded answers
+- local demo mode for presentation without full external setup
+
+## Architecture
+
+### Main Web App
+
+- frontend: vanilla HTML, CSS, and JavaScript from `public/`
+- backend: Express + Socket.IO from `server.mjs`
+- validation helpers: `validators.mjs`
+- optional MongoDB persistence with demo fallback when MongoDB is unavailable
+
+### AI Knowledge Assistant
+
+- FastAPI app in `kaznu-rag/app/main.py`
+- local document retrieval over KazNU data chunks
+- local integration with Ollama
+- standalone chat UI in `kaznu-rag/app/static/`
+- embedded into the main app through the `AI Chat` section
 
 ## Tech Stack
+
+### Main Platform
 
 - Node.js
 - Express
 - Socket.IO
-- MongoDB with Mongoose
-- Nodemailer
-- Vanilla HTML, CSS and JavaScript
+- MongoDB / Mongoose
+- Vanilla JavaScript
+- Playwright
 
-## Why This Project Is Useful
+### AI Service
 
-- reduces fragmentation between chats, announcements and event coordination
-- gives students a focused communication space tied to university identity
-- demonstrates full-stack web development concepts in one project
-- shows practical use of authentication, real-time communication and database integration
+- Python 3.12
+- FastAPI
+- Qdrant client
+- Sentence Transformers
+- Ollama
 
-## Requirements
+## Project Structure
 
-- Node.js `20.19.0` or newer
-- npm
-- MongoDB instance for full functionality
+```text
+kaznu-chat/
+├── public/                # Main frontend
+├── tests/                 # Playwright end-to-end tests
+├── server.mjs             # Main Express server
+├── validators.mjs         # Shared validation helpers
+├── kaznu-rag/             # AI assistant service
+│   ├── app/
+│   ├── crawler/
+│   ├── data/
+│   ├── scripts/
+│   └── requirements.txt
+└── README.md
+```
 
 ## Quick Start
 
-1. Open the project folder:
+### 1. Main Platform
+
+Open the actual project root:
 
 ```bash
 cd kaznu-chat
 ```
 
-2. Install dependencies:
+Install Node.js dependencies:
 
 ```bash
 npm install
 ```
 
-3. Create `.env` from `.env.example` and fill in real values:
+Create `.env` from `.env.example` and use values like this for local demo:
 
 ```env
 PORT=3001
@@ -124,27 +139,49 @@ DISABLE_EMAIL=true
 NODE_ENV=development
 ```
 
-4. Start the application:
+Start the web app:
 
 ```bash
 npm start
 ```
 
-5. Open the browser:
+Open:
 
 ```text
-http://localhost:3001
+http://127.0.0.1:3001
 ```
 
-## Demo Mode
+### 2. AI Assistant Service
 
-For presentation, testing or university review, you can run the project in demo-friendly mode:
+Use Python 3.12. This repository was verified locally with a virtual environment in `kaznu-rag/.venv312`.
 
-```env
-DISABLE_EMAIL=true
+Create and activate the environment:
+
+```bash
+py -3.12 -m venv kaznu-rag/.venv312
+kaznu-rag\.venv312\Scripts\python.exe -m pip install -r kaznu-rag/requirements.txt
 ```
 
-This allows the server to run without real email delivery configuration. MongoDB is still recommended for full demonstration of users, events, announcements and message history.
+Start the AI backend:
+
+```bash
+cd kaznu-rag
+.\.venv312\Scripts\uvicorn.exe app.main:app --host 127.0.0.1 --port 8000
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000/chat
+http://127.0.0.1:8000/docs
+```
+
+## Demo Accounts
+
+For the current local demo dataset:
+
+- admin email: `turlybek_baiken@live.kaznu.kz`
+- admin password: `admin123`
 
 ## Development Commands
 
@@ -152,112 +189,57 @@ This allows the server to run without real email delivery configuration. MongoDB
 npm start
 npm run dev
 npm run check
+npm run test:e2e
 ```
 
-- `npm start` runs the production-style server
-- `npm run dev` runs the server in watch mode
-- `npm run check` performs a syntax check for the main project files
+- `npm start` starts the main Node.js server
+- `npm run dev` starts the server in watch mode
+- `npm run check` checks syntax for the main project files
+- `npm run test:e2e` runs the Playwright regression suite
 
-## Environment Variables
+## Key API Areas
 
-- `PORT`: server port, by default `3001`
-- `MONGO_URI`: MongoDB connection string
-- `MAIL_USER`: sender email for verification codes
-- `MAIL_PASS`: app password for the email account
-- `DISABLE_EMAIL`: set to `true` to disable real email sending during demo/testing
-- `NODE_ENV`: runtime mode
+### Main Platform
 
-## Notes For Reviewers
-
-- The app starts even if MongoDB is unavailable, but database-backed features require a working MongoDB connection.
-- For local demonstration without email delivery, set `DISABLE_EMAIL=true`.
-- The frontend is served directly by the Express server from the `public` folder.
-
-## Suggested Demonstration Path
-
-If this project is reviewed manually, the following sequence gives the clearest overview:
-
-1. Launch the application locally.
-2. Open the registration screen.
-3. Show the faculty and specialty selection flow.
-4. Demonstrate login and profile editing.
-5. Open the chat catalog and switch between rooms.
-6. Show events and announcements pages.
-7. If admin access is available, demonstrate creating an event or announcement.
-
-## Project Structure
-
-```text
-kaznu-chat/
-├── config.mjs
-├── server.mjs
-├── validators.mjs
-├── package.json
-├── package-lock.json
-├── .env.example
-└── public/
-    ├── app.js
-    ├── faculties.js
-    ├── index.html
-    ├── logo.png
-    └── style.css
-```
-
-## API Overview
-
-Authentication:
-
-- `POST /api/register`
-- `POST /api/verify-email`
 - `POST /api/login`
-- `POST /api/validate-user`
-
-Application data:
-
-- `GET /api/faculties`
+- `GET /api/profile`
+- `PUT /api/profile`
 - `GET /api/events`
 - `POST /api/events`
 - `GET /api/announcements`
 - `POST /api/announcements`
-- `GET /api/stats`
-- `POST /api/presence`
-- `PUT /api/profile`
+- `GET /api/runtime-config`
 
-Admin actions:
+### AI Service
 
-- `POST /api/admin/make-admin`
-- `DELETE /api/messages/:id`
+- `GET /health`
+- `GET /chat`
+- `POST /ask`
+- `GET /docs`
 
-## Validation And Security
+## Why This Repository Is Useful
 
-- only `@live.kaznu.kz` addresses are accepted for registration
-- passwords are hashed before persistence
-- required fields are validated on the server
-- faculty and specialty relationships are checked during registration
-- admin endpoints verify both role and email verification state
+- it demonstrates a complete full-stack student platform
+- it solves a real university communication problem
+- it includes both a classic web app and an LLM-powered assistant
+- it is suitable for coursework, portfolio presentation, and further product development
 
-## Security Notes
+## Current State
 
-- Passwords are hashed with `bcryptjs`
-- Email input is normalized before validation
-- Only verified users can authenticate
-- Admin routes require verified admin accounts
-- Sensitive configuration is stored via environment variables
-
-## Repository Status
-
-- GitHub-ready structure
-- launch instructions included
-- environment example included
-- local git history initialized and published
-- suitable for university submission, portfolio review and further development
+- main site works locally on port `3001`
+- AI assistant works locally on port `8000`
+- embedded AI section loads inside the main app
+- RU / EN toggle is implemented
+- local demo flow is working
+- Playwright E2E coverage exists for key scenarios
 
 ## Future Improvements
 
-- JWT or session-based authentication instead of client-side user persistence
-- automated tests for API routes and validation
-- file upload support for avatars or attachments
-- search and filtering for announcements and events
+- one-command startup for both services
+- production deployment guide for Node.js + AI backend
+- stronger session/auth model
+- persistent media uploads
+- richer search and moderation tooling
 - deployment configuration for cloud hosting
 
 ## KazNU RAG MVP

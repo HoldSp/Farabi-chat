@@ -41,48 +41,62 @@ app.use(express.static(publicPath));
 app.use(express.json());
 
 const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/kaznu-chat";
+const LEGACY_DEMO_DOMAIN = String.fromCharCode(109, 98, 122, 117, 97, 105, 45, 100, 101, 109, 111, 46, 97, 105);
+const LEGACY_DEMO_EMAIL_PATTERN = new RegExp(`@${LEGACY_DEMO_DOMAIN.replace(".", "\\.")}$`, "i");
+const LEGACY_DEMO_EVENT_TITLES = [
+  "Undergraduate Fall 2026 regular decision deadline",
+  "Graduate Fall 2026 timing caution",
+  "Escalate case-specific questions to admissions"
+];
+const LEGACY_DEMO_ANNOUNCEMENT_TITLES = [
+  "One program per semester",
+  "Graduate application package",
+  "Scholarship distinction matters"
+];
+const LEGACY_DEMO_MESSAGE_ROOMS = ["assistant:requirements", "assistant:scholarships", "assistant:deadlines", "assistant:contact"];
+const LEGACY_DEMO_MESSAGE_TEXT = /(MBZUAI|admissions)/i;
 const DEMO_EVENTS = [
   {
-    title: "Ярмарка студенческих клубов",
-    description: "Познакомься с клубами, сообществами и инициативами КазНУ.",
-    date: "22 марта • 14:00",
-    place: "Главный корпус",
-    faculty: "Все факультеты",
-    tags: ["Клубы", "Студенты", "Нетворкинг"]
+    title: "Student Clubs Fair",
+    description: "Meet KazNU clubs, communities, and student-led initiatives in one place.",
+    date: "March 22 • 14:00",
+    place: "Main building",
+    faculty: "All faculties",
+    tags: ["Clubs", "Students", "Networking"]
   },
   {
-    title: "Workshop по публичным выступлениям",
-    description: "Практическая сессия по ораторскому мастерству и уверенной подаче.",
-    date: "24 марта • 15:30",
-    place: "Конференц-зал",
-    faculty: "Все факультеты",
-    tags: ["Навыки", "Выступления"]
+    title: "Public Speaking Workshop",
+    description: "A practical session on confident speaking, structure, and live delivery.",
+    date: "March 24 • 15:30",
+    place: "Conference hall",
+    faculty: "All faculties",
+    tags: ["Skills", "Public speaking"]
   },
   {
-    title: "Встреча по студенческим стартапам",
-    description: "Обсуждение идей приложений, MVP и первых шагов в запуске проекта.",
-    date: "27 марта • 17:00",
+    title: "Student Startup Meetup",
+    description: "Discuss app ideas, MVPs, and the first steps of launching a new student project.",
+    date: "March 27 • 17:00",
     place: "Coworking zone",
     faculty: "Факультет информационных технологий",
-    tags: ["Стартап", "AI", "Разработка"]
+    tags: ["Startup", "AI", "Development"]
   }
 ];
 
 const DEMO_ANNOUNCEMENTS = [
   {
-    title: "Открыта регистрация на день карьеры",
-    text: "Студенты могут зарегистрироваться до пятницы. Участие бесплатное.",
-    meta: "Карьера • Сегодня"
+    title: "Career Day registration is open",
+    text: "Students can register until Friday. Participation is free.",
+    meta: "Career services • Today"
   },
   {
-    title: "Лекция по международному праву",
-    text: "Приглашённый эксперт выступит в актовом зале в 16:00.",
-    meta: "ФМО • Завтра"
+    title: "International law guest lecture",
+    text: "An invited expert will speak in the assembly hall at 16:00.",
+    meta: "International Relations • Tomorrow"
   },
   {
-    title: "Приём заявок в студенческие клубы",
-    text: "Открыт набор в студенческие объединения и клубы кампуса.",
-    meta: "Студсовет • Эта неделя"
+    title: "Applications for student clubs are open",
+    text: "Campus clubs and student communities are accepting new members this week.",
+    meta: "Student council • This week"
   }
 ];
 
@@ -91,7 +105,7 @@ const DEMO_USERS = [
     firstName: "Turlybek",
     lastName: "Baiken",
     displayName: "Farabi Admin",
-    bio: "Куратор платформы. Публикую объявления, модерирую чаты и собираю демо-сценарии.",
+    bio: "Platform curator. I publish announcements, moderate chats, and prepare release demos.",
     email: "turlybek_baiken@live.kaznu.kz",
     password: "admin123",
     faculty: "Факультет информационных технологий",
@@ -103,7 +117,7 @@ const DEMO_USERS = [
     firstName: "Alikhan",
     lastName: "Serik",
     displayName: "Алихан Серик",
-    bio: "Студент ФМО. Помогаю с мероприятиями, дедлайнами и студенческими активностями.",
+    bio: "International Relations student. I help with events, deadlines, and campus activities.",
     email: "serik_alikhan@live.kaznu.kz",
     password: "student123",
     faculty: "Международные отношения (ФМО)",
@@ -115,7 +129,7 @@ const DEMO_USERS = [
     firstName: "Dana",
     lastName: "Kaliyeva",
     displayName: "Dana K.",
-    bio: "Студентка IT. Люблю хакатоны, продуктовые встречи и AI-проекты.",
+    bio: "IT student. I enjoy hackathons, product meetups, and AI projects.",
     email: "kaliyeva_dana@live.kaznu.kz",
     password: "student123",
     faculty: "Факультет информационных технологий",
@@ -128,43 +142,43 @@ const DEMO_USERS = [
 const DEMO_MESSAGES = [
   {
     username: "Farabi Admin",
-    text: "Добро пожаловать в Farabi Chat. Здесь собраны важные комнаты по факультетам, событиям и жизни кампуса.",
+    text: "Welcome to Farabi Chat. This is where the key rooms for faculties, events, and campus life are collected.",
     time: "09:10",
     room: "global"
   },
   {
     username: "Алихан Серик",
-    text: "Кто идёт на ярмарку клубов? Могу потом скинуть короткий обзор по самым активным стендам.",
+    text: "Who is going to the student clubs fair? I can share a short recap of the most active booths afterward.",
     time: "09:12",
     room: "global"
   },
   {
     username: "Dana K.",
-    text: "В IT-комьюнити в четверг обсуждаем AI-проекты и стажировки. Можно заглянуть даже без команды.",
+    text: "The IT community is discussing AI projects and internships on Thursday. You can join even without a team.",
     time: "09:15",
     room: "global"
   },
   {
     username: "Farabi Admin",
-    text: "В этой комнате собираем кампусные события недели. Добавляйте полезные встречи и лекции.",
+    text: "We collect the week's campus events in this room. Add useful meetups and lectures here.",
     time: "10:00",
     room: "general:events"
   },
   {
     username: "Алихан Серик",
-    text: "Я добавил в события карьерный день и лекцию по международному праву. Оба пункта уже в ленте.",
+    text: "I added Career Day and the international law lecture to the events feed. Both are already live.",
     time: "10:04",
     room: "general:events"
   },
   {
     username: "Dana K.",
-    text: "Для Data Science можно закрепить комнаты по факультету и по учебе. Так удобнее переключаться во время сессии.",
+    text: "For Data Science, pinning the faculty room and the study room makes it easier to switch during exam season.",
     time: "10:20",
     room: "faculty:Факультет информационных технологий"
   },
   {
     username: "Алихан Серик",
-    text: "ФМО, напомню: завтра открытая лекция и встреча по академической мобильности. Если нужен конспект, напишите сюда.",
+    text: "International Relations reminder: tomorrow there is an open lecture and an academic mobility session. Message here if you want notes.",
     time: "10:35",
     room: "faculty:Международные отношения (ФМО)"
   }
@@ -176,6 +190,8 @@ const DISABLE_EMAIL = process.env.DISABLE_EMAIL !== "false";
 const AUTH_COOKIE_NAME = "farabi_auth";
 const AUTH_COOKIE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 const AUTH_TOKEN_SECRET = process.env.AUTH_TOKEN_SECRET || "dev-auth-token-secret-change-me";
+const AI_ASSISTANT_URL = process.env.AI_ASSISTANT_URL || "http://127.0.0.1:8000/chat";
+const AI_ASSISTANT_DOCS_URL = process.env.AI_ASSISTANT_DOCS_URL || AI_ASSISTANT_URL.replace(/\/chat\/?$/u, "/docs");
 
 let mongoReady = false;
 const demoStore = {
@@ -495,96 +511,166 @@ function sortByCreatedAsc(items) {
 }
 
 async function seedDemoFallbackData() {
-  if (demoStore.events.length === 0) {
-    const now = new Date().toISOString();
-    demoStore.events.push(...DEMO_EVENTS.map((event) => ({
+  demoStore.users = demoStore.users.filter((item) => !LEGACY_DEMO_EMAIL_PATTERN.test(item.email));
+  demoStore.pendingRegistrations = demoStore.pendingRegistrations.filter((item) => !LEGACY_DEMO_EMAIL_PATTERN.test(item.email));
+  demoStore.events = demoStore.events.filter((item) => !LEGACY_DEMO_EVENT_TITLES.includes(item.title));
+  demoStore.announcements = demoStore.announcements.filter((item) => !LEGACY_DEMO_ANNOUNCEMENT_TITLES.includes(item.title));
+  demoStore.messages = demoStore.messages.filter((item) => !LEGACY_DEMO_MESSAGE_ROOMS.includes(item.room) && item.username !== "Admissions Reviewer" && !LEGACY_DEMO_MESSAGE_TEXT.test(item.text));
+
+  const now = new Date().toISOString();
+
+  for (const event of DEMO_EVENTS) {
+    const existingEvent = demoStore.events.find((item) => item.title === event.title);
+    if (existingEvent) {
+      Object.assign(existingEvent, event, { updatedAt: now });
+      continue;
+    }
+
+    demoStore.events.push({
       id: createDemoId(),
       ...event,
       createdAt: now,
       updatedAt: now
-    })));
+    });
   }
 
-  if (demoStore.announcements.length === 0) {
-    const now = new Date().toISOString();
-    demoStore.announcements.push(...DEMO_ANNOUNCEMENTS.map((announcement) => ({
+  for (const announcement of DEMO_ANNOUNCEMENTS) {
+    const existingAnnouncement = demoStore.announcements.find((item) => item.title === announcement.title);
+    if (existingAnnouncement) {
+      Object.assign(existingAnnouncement, announcement, { updatedAt: now });
+      continue;
+    }
+
+    demoStore.announcements.push({
       id: createDemoId(),
       ...announcement,
       createdAt: now,
       updatedAt: now
-    })));
+    });
   }
 
-  if (demoStore.users.length === 0) {
-    const now = new Date().toISOString();
-    for (const user of DEMO_USERS) {
-      demoStore.users.push({
-        id: createDemoId(),
+  for (const user of DEMO_USERS) {
+    const existingUser = demoStore.users.find((item) => item.email === user.email);
+    if (existingUser) {
+      Object.assign(existingUser, {
         firstName: user.firstName,
         lastName: user.lastName,
         displayName: user.displayName,
         bio: user.bio,
-        email: user.email,
-        password: await hashPlaintextPassword(user.password),
         faculty: user.faculty,
         specialty: user.specialty,
         course: user.course,
+        role: user.role,
         isEmailVerified: true,
         verificationCode: null,
         verificationExpires: null,
-        role: user.role,
-        lastSeen: new Date(),
-        createdAt: now,
-        updatedAt: now
+        updatedAt: now,
+        lastSeen: new Date()
       });
+      continue;
     }
+
+    demoStore.users.push({
+      id: createDemoId(),
+      firstName: user.firstName,
+      lastName: user.lastName,
+      displayName: user.displayName,
+      bio: user.bio,
+      email: user.email,
+      password: await hashPlaintextPassword(user.password),
+      faculty: user.faculty,
+      specialty: user.specialty,
+      course: user.course,
+      isEmailVerified: true,
+      verificationCode: null,
+      verificationExpires: null,
+      role: user.role,
+      lastSeen: new Date(),
+      createdAt: now,
+      updatedAt: now
+    });
   }
 
-  if (demoStore.messages.length === 0) {
-    const baseTime = Date.now() - DEMO_MESSAGES.length * 60_000;
-    demoStore.messages.push(...DEMO_MESSAGES.map((message, index) => {
-      const createdAt = new Date(baseTime + index * 60_000).toISOString();
-      return {
-        id: createDemoId(),
-        ...message,
-        createdAt,
-        updatedAt: createdAt
-      };
-    }));
-  }
+  const baseTime = Date.now() - DEMO_MESSAGES.length * 60_000;
+  DEMO_MESSAGES.forEach((message, index) => {
+    const existingMessage = demoStore.messages.find((item) => item.room === message.room && item.text === message.text);
+    if (existingMessage) {
+      existingMessage.username = message.username;
+      existingMessage.time = message.time;
+      existingMessage.updatedAt = now;
+      return;
+    }
+
+    const createdAt = new Date(baseTime + index * 60_000).toISOString();
+    demoStore.messages.push({
+      id: createDemoId(),
+      ...message,
+      createdAt,
+      updatedAt: createdAt
+    });
+  });
 }
 
 await seedDemoFallbackData();
 
 async function seedDemoData() {
   try {
-    const eventsCount = await Event.countDocuments();
-    if (eventsCount === 0) {
-      await Event.insertMany(DEMO_EVENTS);
-      console.log("Демо-мероприятия добавлены");
+    await PendingRegistration.deleteMany({ email: LEGACY_DEMO_EMAIL_PATTERN });
+    await User.deleteMany({ email: LEGACY_DEMO_EMAIL_PATTERN });
+    await Event.deleteMany({ title: { $in: LEGACY_DEMO_EVENT_TITLES } });
+    await Announcement.deleteMany({ title: { $in: LEGACY_DEMO_ANNOUNCEMENT_TITLES } });
+    await Message.deleteMany({
+      $or: [
+        { room: { $in: LEGACY_DEMO_MESSAGE_ROOMS } },
+        { username: "Admissions Reviewer" },
+        { text: LEGACY_DEMO_MESSAGE_TEXT }
+      ]
+    });
+
+    for (const event of DEMO_EVENTS) {
+      const existingEvent = await Event.findOne({ title: event.title });
+      if (existingEvent) {
+        existingEvent.description = event.description;
+        existingEvent.date = event.date;
+        existingEvent.place = event.place;
+        existingEvent.faculty = event.faculty;
+        existingEvent.tags = event.tags;
+        await existingEvent.save();
+        continue;
+      }
+
+      await Event.create(event);
+      console.log("Демо-мероприятие добавлено:", event.title);
     }
 
-    const announcementsCount = await Announcement.countDocuments();
-    if (announcementsCount === 0) {
-      await Announcement.insertMany(DEMO_ANNOUNCEMENTS);
-      console.log("Демо-объявления добавлены");
+    for (const announcement of DEMO_ANNOUNCEMENTS) {
+      const existingAnnouncement = await Announcement.findOne({ title: announcement.title });
+      if (existingAnnouncement) {
+        existingAnnouncement.text = announcement.text;
+        existingAnnouncement.meta = announcement.meta;
+        await existingAnnouncement.save();
+        continue;
+      }
+
+      await Announcement.create(announcement);
+      console.log("Демо-объявление добавлено:", announcement.title);
     }
 
     for (const user of DEMO_USERS) {
       const existingUser = await User.findOne({ email: user.email });
       if (existingUser) {
-        if (!existingUser.isEmailVerified) {
-          existingUser.isEmailVerified = true;
-          existingUser.verificationCode = null;
-          existingUser.verificationExpires = null;
-          existingUser.role = user.role;
-          existingUser.displayName = existingUser.displayName || user.displayName;
-          existingUser.bio = existingUser.bio || user.bio;
-          existingUser.faculty = existingUser.faculty || user.faculty;
-          existingUser.specialty = existingUser.specialty || user.specialty;
-          existingUser.course = existingUser.course || user.course;
-          await existingUser.save();
-        }
+        existingUser.firstName = user.firstName;
+        existingUser.lastName = user.lastName;
+        existingUser.displayName = user.displayName;
+        existingUser.bio = user.bio;
+        existingUser.faculty = user.faculty;
+        existingUser.specialty = user.specialty;
+        existingUser.course = user.course;
+        existingUser.role = user.role;
+        existingUser.isEmailVerified = true;
+        existingUser.verificationCode = null;
+        existingUser.verificationExpires = null;
+        await existingUser.save();
         continue;
       }
 
@@ -606,10 +692,17 @@ async function seedDemoData() {
       });
     }
 
-    const messagesCount = await Message.countDocuments();
-    if (messagesCount === 0) {
-      await Message.insertMany(DEMO_MESSAGES);
-      console.log("Демо-сообщения добавлены");
+    for (const message of DEMO_MESSAGES) {
+      const existingMessage = await Message.findOne({ room: message.room, text: message.text });
+      if (existingMessage) {
+        existingMessage.username = message.username;
+        existingMessage.time = message.time;
+        await existingMessage.save();
+        continue;
+      }
+
+      await Message.create(message);
+      console.log("Демо-сообщение добавлено в комнату:", message.room);
     }
   } catch (err) {
     console.error("Ошибка seed demo data:", err.message);
@@ -898,47 +991,54 @@ app.post("/api/login", async (req, res) => {
     if (!mongoReady) {
       const user = findDemoUser(normalizedEmail);
 
-      if (!user) return res.status(404).json({ error: "Пользователь не найден" });
-      if (!user.isEmailVerified) return res.status(403).json({ error: "Сначала подтверди почту" });
+      if (!user) return res.status(404).json({ error: "User not found" });
+      if (!user.isEmailVerified) return res.status(403).json({ error: "Verify your email before signing in" });
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) return res.status(400).json({ error: "Неверный пароль" });
+      if (!isPasswordValid) return res.status(400).json({ error: "Incorrect password" });
 
       user.lastSeen = new Date();
       user.updatedAt = new Date().toISOString();
       setAuthCookie(res, user);
 
       return res.json({
-        message: "Вход выполнен",
+        message: "Signed in successfully",
         user: formatUserResponse(user)
       });
     }
 
     const user = await User.findOne({ email: normalizedEmail });
 
-    if (!user) return res.status(404).json({ error: "Пользователь не найден" });
-    if (!user.isEmailVerified) return res.status(403).json({ error: "Сначала подтверди почту" });
+    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user.isEmailVerified) return res.status(403).json({ error: "Verify your email before signing in" });
 
     const isPasswordValid = await user.comparePassword(password);
-    if (!isPasswordValid) return res.status(400).json({ error: "Неверный пароль" });
+    if (!isPasswordValid) return res.status(400).json({ error: "Incorrect password" });
 
     user.lastSeen = new Date();
     await user.save();
     setAuthCookie(res, user);
 
     res.json({
-      message: "Вход выполнен",
+      message: "Signed in successfully",
       user: formatUserResponse(user)
     });
   } catch (err) {
     console.error("Ошибка /api/login:", err);
-    res.status(500).json({ error: "Ошибка входа" });
+    res.status(500).json({ error: "Sign-in failed" });
   }
 });
 
 app.post("/api/logout", (req, res) => {
   clearAuthCookie(res);
-  res.json({ message: "Выход выполнен" });
+  res.json({ message: "Signed out successfully" });
+});
+
+app.get("/api/runtime-config", (req, res) => {
+  res.json({
+    aiAssistantUrl: AI_ASSISTANT_URL,
+    aiAssistantDocsUrl: AI_ASSISTANT_DOCS_URL
+  });
 });
 
 app.delete("/api/messages/:id", async (req, res) => {
@@ -1048,7 +1148,7 @@ app.post("/api/events", async (req, res) => {
         description: description.trim(),
         date: date.trim(),
         place: place.trim(),
-        faculty: (faculty || "Все факультеты").trim(),
+        faculty: (faculty || "All faculties").trim(),
         tags: Array.isArray(tags)
           ? tags.map((tag) => String(tag).trim()).filter(Boolean)
           : [],
@@ -1071,7 +1171,7 @@ app.post("/api/events", async (req, res) => {
       description: description.trim(),
       date: date.trim(),
       place: place.trim(),
-      faculty: (faculty || "Все факультеты").trim(),
+      faculty: (faculty || "All faculties").trim(),
       tags: Array.isArray(tags)
         ? tags.map((tag) => String(tag).trim()).filter(Boolean)
         : [],
@@ -1123,7 +1223,7 @@ app.post("/api/presence", async (req, res) => {
     const user = await getAuthenticatedUser(req);
 
     if (!user) {
-      return res.status(401).json({ error: "Требуется авторизация" });
+      return res.status(401).json({ error: "Authentication required" });
     }
 
     if (!mongoReady) {
@@ -1309,7 +1409,7 @@ app.put("/api/profile", async (req, res) => {
       user.updatedAt = new Date().toISOString();
 
       return res.json({
-        message: "Профиль обновлён",
+        message: "Profile updated",
         user: formatUserResponse(user)
       });
     }
@@ -1320,12 +1420,12 @@ app.put("/api/profile", async (req, res) => {
     await user.save();
 
     res.json({
-      message: "Профиль обновлён",
+      message: "Profile updated",
       user: formatUserResponse(user)
     });
   } catch (err) {
     console.error("Ошибка /api/profile:", err);
-    res.status(500).json({ error: "Ошибка обновления профиля" });
+    res.status(500).json({ error: "Profile update failed" });
   }
 });
 
@@ -1334,25 +1434,25 @@ app.post("/api/validate-user", async (req, res) => {
     const user = await getAuthenticatedUser(req);
 
     if (!user) {
-      return res.status(401).json({ error: "Требуется авторизация" });
+      return res.status(401).json({ error: "Authentication required" });
     }
 
     if (!mongoReady) {
       return res.json({
-        message: "Пользователь валиден",
+        message: "User validated",
         valid: true,
         user: formatUserResponse(user)
       });
     }
 
     res.json({
-      message: "Пользователь валиден",
+      message: "User validated",
       valid: true,
       user: formatUserResponse(user)
     });
   } catch (err) {
     console.error("Ошибка /api/validate-user:", err);
-    res.status(500).json({ error: "Ошибка валидации" });
+    res.status(500).json({ error: "Validation failed" });
   }
 });
 
